@@ -88,16 +88,4 @@ public class Contract implements Serializable {
     public void setTaskList(List<Task> taskList) {
         this.taskList = taskList;
     }
-
-    @Override
-    public String toString() {
-        return "Contract{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", beneficiary='" + beneficiary + '\'' +
-                ", createdAt=" + createdAt +
-                ", hoursBagList=" + hoursBagList +
-                ", taskList=" + taskList +
-                '}';
-    }
 }

@@ -45,12 +45,7 @@ public class ContractController {
 
     @PostMapping
     public ResponseEntity<ContractDTO> create(@RequestBody ContractDTO data) {
-        try{
-            return ResponseEntity.ok(contractService.create(data));
-        }catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+        return ResponseEntity.ok(contractService.create(data));
     }
 
     @PutMapping

@@ -9,11 +9,7 @@ public class TaskDTO {
 
     private String title;
 
-    private String description;
-
     private LocalDate createdAt;
-
-    private LocalDate finishedAt;
 
     private int investedTime;
 
@@ -28,25 +24,15 @@ public class TaskDTO {
     public TaskDTO() {
     }
 
-    public TaskDTO(Long id, String title, String description, LocalDate createdAt, LocalDate finishedAt, int investedTime, String priority, String state, Long contractId, String contractBN) {
+    public TaskDTO(Long id, String title, LocalDate createdAt, int investedTime, String priority, String state, Long contractId, String contractBN) {
         this.id = id;
         this.title = title;
-        this.description = description;
         this.createdAt = createdAt;
-        this.finishedAt = finishedAt;
         this.investedTime = investedTime;
         this.priority = priority;
         this.state = state;
         this.contractId = contractId;
         this.contractBN = contractBN;
-    }
-
-    public LocalDate getFinishedAt() {
-        return finishedAt;
-    }
-
-    public void setFinishedAt(LocalDate finishedAt) {
-        this.finishedAt = finishedAt;
     }
 
     public Long getId() {
@@ -111,13 +97,5 @@ public class TaskDTO {
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

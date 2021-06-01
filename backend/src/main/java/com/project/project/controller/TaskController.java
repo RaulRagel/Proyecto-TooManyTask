@@ -34,15 +34,12 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskDTO> create(@RequestBody TaskDTO data) {
-        if (data.getInvestedTime() < 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return ResponseEntity.ok(taskService.create(data));
     }
 
     @PutMapping
     public ResponseEntity<TaskDTO> update(@RequestBody TaskDTO data) {
-        if (data.getId() == null || data.getInvestedTime() < 0) {
+        if (data.getId() == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(taskService.update(data));

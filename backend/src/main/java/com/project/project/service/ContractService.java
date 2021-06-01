@@ -19,8 +19,7 @@ public class ContractService {
     }
 
     public List<ContractDTO> getAllContracts() {
-
-        return contractRepository.findAll().stream().map(ContractMapper::toDto) //contrato -> toDto(contrato)
+        return contractRepository.findAll().stream().map(ContractMapper::toDto)
                 .collect(Collectors.toList());
     }
 

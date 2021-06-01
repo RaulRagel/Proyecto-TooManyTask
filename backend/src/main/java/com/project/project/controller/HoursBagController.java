@@ -32,9 +32,6 @@ public class HoursBagController {
 
     @PostMapping
     public ResponseEntity<HoursBagDTO> create(@RequestBody HoursBagDTO data) {
-        if(data.getInitDate().isAfter(data.getEndDate())){ //si la fecha de inicio es posterior, no podemos guardar
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return ResponseEntity.ok(hoursBagService.create(data));
     }
 
