@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="9">
         <v-card
-          class="pa-3 mb-5"
+          class="pa-3"
           elevation="5"
           color="primary_variant"
         >
@@ -57,7 +57,7 @@
         </v-card>
       </v-col>
       <v-col cols="3">
-        <v-toolbar flat color="secondary" class="mb-5">
+        <v-toolbar flat color="secondary" class="mb-2">
           <v-toolbar-title>
             <h2>Avisos</h2>
           </v-toolbar-title>
@@ -91,7 +91,7 @@
 
                 <v-spacer></v-spacer>
 
-                <v-btn icon color="blanco" title="Ir a las tareas de este Servicio" @click="goToPathFilter('/tareas')">
+                <v-btn icon color="blanco" title="Ir a las tareas de este Servicio" @click="goToPathFilter('/tareas')" :disabled="disabledTask">
                   <v-icon style="transform: scaleX(-1)">mdi-application-import</v-icon>
                 </v-btn>
 
@@ -160,7 +160,7 @@
 
                 <v-spacer></v-spacer>
 
-              <v-btn icon color="blanco" title="Ir a las bolsas de horas de este Servicio" @click="goToPathFilter('/bolsahoras')">
+              <v-btn icon color="blanco" title="Ir a las bolsas de horas de este Servicio" @click="goToPathFilter('/bolsahoras')" :disabled="disabledBags">
                 <v-icon style="transform: scaleX(-1)">mdi-application-import</v-icon>
               </v-btn>
 
@@ -200,6 +200,14 @@ export default {
   }),
   created() {
     this.initialize();
+  },
+  computed:{
+    disabledTask(){
+      return this.servicio.taskList.length != 0 ? false : true;
+    },
+    disabledBags(){
+      return this.servicio.hourBagsList.length != 0 ? false : true;
+    }
   },
   methods: {
     evento(value) {

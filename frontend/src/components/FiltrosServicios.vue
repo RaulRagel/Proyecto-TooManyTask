@@ -4,13 +4,19 @@
         <v-icon>mdi-magnify</v-icon>
 
         <v-list-item-content>
-          <v-list-item-title class="ml-3"><h3>Filtrar por:</h3></v-list-item-title>
+          <v-list-item-title class="ml-3" ><h3>Filtros:</h3></v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
+      <!-- ITEMS -->
+      <v-list dense color="secondary_variant">
+
+      <v-row justify="center" align="center" class="my-1">
+        <v-btn text color="primary" @click="limpiayEnvia" :disabled="isDisabled">Limpiar filtros</v-btn>
+      </v-row>
+
       <v-divider></v-divider>
 
-      <v-list dense color="secondary_variant">
 
         <!--Beneficiario-->
         <v-list-item>
@@ -111,10 +117,6 @@
         </v-list-item>
           
       </v-list>
-
-      <div align="center" class="py-3">
-        <v-btn color="primary_variant" elevation="3" @click="limpiayEnvia">Limpiar todos</v-btn>
-      </div>
 </div>
 </template>
 <script>
@@ -126,9 +128,22 @@ export default {
   },
   data() {
     return {
-      drawer: null,
 
       filtro:{
+        switchTareas: false,
+        switchBolsas: false,
+        switchAvisos: false,
+        filtroBeneficiario: "",
+        filtroNombre: "",
+        filtroTareas: "",
+        filtroHoras: "",
+        filtroAvisos: "",
+        filtroFechas: {
+          inicio: null,
+          fin: null,
+        },
+      },
+      filtroDefault:{
         switchTareas: false,
         switchBolsas: false,
         switchAvisos: false,
@@ -145,28 +160,25 @@ export default {
 
     };
   },
+
+  computed:{
+    isDisabled(){
+      return JSON.stringify(this.filtro)===JSON.stringify(this.filtroDefault) ? true : false;
+    }
+  },
   methods: {
+    enviarFiltro(){
+      this.$emit("misFiltros",this.filtro);
+    },
     recibirFechasDeCalendar(value){
       this.filtro.filtroFechas.inicio = value.inicio;
       this.filtro.filtroFechas.fin = value.fin;
 
-      this.$emit("misFiltros",this.filtro);
-    },
-    enviarFiltro(){
-      this.$emit("misFiltros",this.filtro);
+      this.enviarFiltro();
     },
     limpiayEnvia(){
-      
-      this.filtro.switchTareas = false;
-      this.filtro.switchBolsas = false;
-      this.filtro.switchAvisos = false;
-      this.filtro.filtroFechas.inicio = null;
-      this.filtro.filtroFechas.fin = null;
-      this.filtro.filtroBeneficiario = "";
-      this.filtro.filtroNombre = "";
-      this.filtro.filtroTareas = "";
-      this.filtro.filtroHoras = "";
-      this.filtro.filtroAvisos = "";
+
+      this.filtro = Object.assign({}, this.filtroDefault);
 
       this.$refs.calendarComponent.limpiayEnvia(); //referencia al componente Calendar y llama a su método para limpiar
 
@@ -178,7 +190,7 @@ export default {
       }else{
         return "Más de";
       }
-    }
+    },
   },
   
 };

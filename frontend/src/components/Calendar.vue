@@ -51,7 +51,7 @@
             </v-btn>
           </v-date-picker>
         </v-menu>
-          <v-btn text color="primary" @click="limpiayEnvia">Limpiar</v-btn>
+          <v-btn text color="primary" @click="limpiayEnvia" :disabled="isDisabled">Limpiar fechas</v-btn>
   
       </div>
 </template>
@@ -65,7 +65,11 @@ export default {
 
     fechas:{
       inicio: null,
-      fin:null
+      fin: null
+    },
+    fechasDefault:{
+      inicio: null,
+      fin: null
     }
   }),
 
@@ -78,6 +82,10 @@ export default {
 
       return this.fechas.fin ? moment(this.fechas.fin).format('DD-MM-YYYY') : '';
     },
+    isDisabled(){
+      return JSON.stringify(this.fechas)===JSON.stringify(this.fechasDefault) ? true : false;
+    }
+
   },
   methods:{
     limpiayEnvia(){

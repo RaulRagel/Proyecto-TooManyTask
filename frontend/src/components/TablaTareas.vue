@@ -14,6 +14,9 @@
       :items="tareas"
       class="elevation-1 secondary_variant"
       :custom-sort="ordenPersonalizado"
+      @dblclick:row="testDbclick"
+      @click:row="testClick"
+      title="Doble click en una tarea para ver su servicio"
     >
       <template v-slot:[`item.createdAt`]="{item}">
         {{formatDate(item.createdAt)}}
@@ -228,6 +231,7 @@ export default {
     },
   },
   data: () => ({
+    //---VALIDACIONES
     titleRules: [
       v => !!v || 'Nombre del titulo es requerido',
       v => v.length <= 100 || 'Nombre debe ser menor a 10 caracteres',
@@ -239,16 +243,21 @@ export default {
       v => v >= 0 || 'Introduce un numero mayor que 0',
     ],
     valid:false,
+
+    //---DIÁLOGOS
     dialog: false,
     dialogDelete: false,
+
+    //---FECHA Y HORA ACTUAL
     currentDate: '',
     currentTime: '',
-    fechaAuxiliar: "",
+
+    //---RECARGAR
     loader: null,
     loading: false,
 
-    benefNombre:[],
-    tareas:[],
+    //---ITEMS
+    auxItem: "",  //guardamos la fila al hacer doble click
     
     editedIndex: -1,
     editedItem: {
@@ -274,15 +283,22 @@ export default {
       contractId: ""
     },
 
-    addingTaks: false,
 
+    //---SNACKBAR
     snackbarText: "",
     snackbarColor: "",
     snackbar: false,
     timeout: 1500,
 
+    //---API
+    tareas:[],
+    benefNombre:[], //beneficiario+nombre
     url: "http://localhost:8080/task",
     urlServicios: "http://localhost:8080/contract",
+
+    //---Otros
+    addingTaks: false, //si venimos del botón agregar tarea al servicio, su valor será true
+
   }),
 
   computed: { 
@@ -308,7 +324,8 @@ export default {
     this.comprobarLocal();
   },
   methods: {
-    comprobarLocal(){
+    //---LOCAL STORAGE
+    comprobarLocal(){ //si teníamos información, es que estamos añadiendo una tarea desde servicios
 
       if(localStorage.serviceBN){
 
@@ -317,13 +334,16 @@ export default {
         this.editedItem.contractId = localStorage.serviceID;
         this.dialog = true;
       }
-      
     },
+
+    //---SNACKBARS
     callSnackbar(color,text){
       this.snackbarColor = color;
       this.snackbarText = text;
       this.snackbar = true;
     },
+
+    //---FECHAS
     setDateTime(){
       this.currentDate = moment().locale('es');
       this.currentTime = moment().format('LTS');
@@ -333,7 +353,15 @@ export default {
       this.currentDate = moment().locale('es');
       this.currentTime = moment().format('LTS');
     },
+    recibirNuevaFecha(value){ //emit de fecha modal
 
+      this.editedItem.createdAt = value;
+    },
+    formatDate(date){
+      return date ? moment(date).format("DD-MM-YYYY") : '';
+    },
+
+    //---OPERACIONES BASE DE DATOS
     async getFromBd(){
 
       let response = await axios.get(this.url);
@@ -361,42 +389,20 @@ export default {
     async saveInBd(){
 
       await axios.post(this.url, this.editedItem);
+      this.callSnackbar("green","Añadido correctamente");
     },
     async updateInBd(){
 
       await axios.put(this.url, this.editedItem);
+      this.callSnackbar("green","Editado correctamente");
     },
     async deleteInBd(id){
 
       await axios.delete(this.url+"/"+id);
-    },
-    recibirNuevaFecha(value){
-
-      this.editedItem.createdAt = value;
-    },
-    formatDate(date){
-      return date ? moment(date).format("DD-MM-YYYY") : '';
-    },
-    ordenPersonalizado(items, index, isDesc) {
-      items.sort((a, b) => {
-        if (index === "fecha") {
-          if (!isDesc[0]) {
-            if (a.fecha > b.fecha) return 1;
-            else if (a.fecha < b.fecha) return -1;
-            else return 0;
-
-          }
-        }else {
-          if (!isDesc[0]) {
-            return a[index] < b[index] ? -1 : 1;
-          } else {
-            return b[index] < a[index] ? -1 : 1;
-          }
-        }
-      });
-      return items;
+      this.callSnackbar("green","Borrado correctamente");
     },
 
+    //---OPERACIONES DEL USUARIO
     editItem(item) {
       this.editedIndex = this.tareas.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -414,7 +420,6 @@ export default {
       this.deleteInBd(this.editedItem.id);
       this.closeDelete();
       this.getFromBd();
-      this.callSnackbar("red","Borrado correctamente");
     },
 
     close() {
@@ -449,32 +454,64 @@ export default {
           this.getFromBd();
           this.updateInBd();
           this.getFromBd();
-          this.callSnackbar("orange","Editado correctamente");
         } else {
           this.getFromBd();
           this.editedItem.contractBN = this.findById(this.editedItem.contractId); //en este punto, editedItem.contractBN está vacío asi que tenemos que rellenarlo
           this.saveInBd();
           this.getFromBd();
-          this.callSnackbar("green","Añadido correctamente");
         }
         this.close();
       }
     },
-    saveNoValidate(){
-        if (this.editedIndex > -1) {
-          this.getFromBd();
-          this.updateInBd();
-          this.getFromBd();
-        } else {
-          this.getFromBd();
-          this.editedItem.contractBN = this.findById(this.editedItem.contractId);
-          this.saveInBd();
-          this.getFromBd();
+
+    //---SORTING
+    ordenPersonalizado(items, index, isDesc) {
+
+      items.sort((a, b) => {
+        if (index[0] === "createdAt") {
+          
+          if (!isDesc[0]) {
+            if (a.createdAt > b.createdAt) return 1;
+            else if (a.createdAt < b.createdAt) return -1;
+            else return 0;
+
+          }else{
+
+            if (a.createdAt < b.createdAt) return 1;
+            else if (a.createdAt > b.createdAt) return -1;
+            else return 0;
+          }
+        }else {
+          if (!isDesc[0]) {
+            return a[index] < b[index] ? -1 : 1;
+          } else {
+            return a[index] > b[index] ? -1 : 1;
+          }
         }
-      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
-      this.editedIndex = -1;
+      });
+      return items;
     },
-    findById(id){
+
+    //---IR A OTRA PESTAÑA
+    testClick(item){
+      this.auxItem = item;
+    },
+    testDbclick(){
+
+      localStorage.id = this.auxItem.contractId;
+      this.goToPath("/detalles");
+    },
+    goToDetails(item){
+
+      localStorage.id = item.contractId;
+      this.goToPath("/detalles");
+    },
+    goToPath(path) {
+      if (this.$router.currentRoute.path != path) this.$router.push(path);
+    },
+
+    //---OTROS
+    findById(id){ //buscamos el servicio a través de su id para asignarselo antes de guardar la tarea
 
       for (let i = 0; i < this.benefNombre.length; i++) {
         if(this.benefNombre[i].id == id){
@@ -505,10 +542,14 @@ export default {
       
       item.state = num.toString();
 
-      this.editedItem = Object.assign({}, item);
-      this.editedIndex = this.tareas.indexOf(item);
+      this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
       
-      this.saveNoValidate();
+      this.getFromBd();
+      this.updateInBd();
+      this.getFromBd();
+
+      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
+
     },
     titleState(state){
       switch(state){
@@ -521,15 +562,6 @@ export default {
         default:
           return "";
       }
-    },
-    
-    goToDetails(item){
-
-      localStorage.id = item.contractId;
-      this.goToPath("/detalles");
-    },
-    goToPath(path) {
-      if (this.$router.currentRoute.path != path) this.$router.push(path);
     },
   },
 };

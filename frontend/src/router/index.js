@@ -30,9 +30,9 @@ const routes = [
   },
   {
     path: "/grafico",
-    name: "Grafico",
+    name: "GraficoGeneral",
 
-    component: () => import("../views/Grafico.vue"),
+    component: () => import("../views/GraficoGeneral.vue"),
   },
   {
     path: "/detalles",

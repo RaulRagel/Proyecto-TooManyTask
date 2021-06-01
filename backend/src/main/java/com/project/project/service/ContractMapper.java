@@ -14,8 +14,10 @@ public class ContractMapper {
         ContractDTO contractDTO = new ContractDTO();
 
         contractDTO.setId(contract.getId());
-        contractDTO.setName(contract.getName());
-        contractDTO.setBeneficiary(contract.getBeneficiary());
+
+        contractDTO.setName(upperCaseFirst(contract.getName())); //convertimos siempre la primera en mayúscula
+        contractDTO.setBeneficiary(upperCaseFirst(contract.getBeneficiary()));
+
         contractDTO.setCreatedAt(contract.getCreatedAt());
 
         if(contract.getHoursBagList() != null) contractDTO.setHourBags(contract.getHoursBagList().size());
@@ -52,5 +54,11 @@ public class ContractMapper {
         contract.setCreatedAt(contractDTO.getCreatedAt());
 
         return contract;
+    }
+
+    public static String upperCaseFirst(String val) {
+        char[] arr = val.toCharArray();
+        arr[0] = Character.toUpperCase(arr[0]);
+        return new String(arr);
     }
 }

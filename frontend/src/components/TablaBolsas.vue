@@ -13,6 +13,9 @@
       :items="bolsas"
       class="elevation-5 secondary_variant"
       :custom-sort="ordenPersonalizado"
+      @dblclick:row="testDbclick"
+      @click:row="testClick"
+      title="Doble click en una bolsa para ver su servicio"
     >
       <template v-slot:[`item.initDate`]="{item}">
         {{formatDate(item.initDate)}}
@@ -59,7 +62,7 @@
                 <v-form v-model="valid" ref="form3" >
                   <v-row v-if="editedIndex == -1">
 
-                    <v-col sm="7" v-if="addingTaks">
+                    <v-col sm="7" v-if="addingBags">
                       <span><b>Servicio:</b> {{editedItem.contractBN}}</span>
                     </v-col>
 
@@ -176,6 +179,8 @@ export default {
 
 
   data: () => ({
+    
+    //---VALIDACIONES
     selectRules: [
       v => !!v || 'Nombre de beneficiario es requerido',
     ],
@@ -183,15 +188,17 @@ export default {
       v => !!v || 'Añade un tiempo estimado',
     ],
     valid:false,
+
+    //---DIÁLOGOS
     dialog: false,
     dialogDelete: false,
+
+      //---FECHA Y HORA ACTUAL
     currentDate: '',
     currentTime: '',
 
-    bolsas: [],
-    bolsasAux:[],
-    benefNombre:[],
-    test: "",
+    //---ITEMS
+    auxItem: "",  //guardamos la fila al hacer doble click
 
     editedIndex: -1,
     editedItem: {
@@ -213,17 +220,22 @@ export default {
       contractId: ""
     },
 
-    url: "http://localhost:8080/hoursBag", //guardar bolsas
-    url2: "http://localhost:8080/contractBT", //coger bolsas con sus calculos
-    urlServicios: "http://localhost:8080/contract", //coger contratos
-
-    addingTaks: false,
-
+    //---SNACKBAR
     snackbarText: "",
     snackbarColor: "",
     snackbar: false,
     timeout: 1500,
 
+    //---API
+    bolsas: [],
+    bolsasAux:[],
+    benefNombre:[],
+    url: "http://localhost:8080/hoursBag", //guardar,eliminar, editar bolsas
+    url2: "http://localhost:8080/contractBT", //coger bolsas con sus calculos
+    urlServicios: "http://localhost:8080/contract", //coger contratos
+
+    //---Otros
+    addingBags: false,
   }),
 
   computed: {
@@ -251,22 +263,27 @@ export default {
     this.comprobarLocal();
   },
   methods: {
+    //---LOCAL STORAGE
     comprobarLocal(){
 
       if(localStorage.serviceBN){
 
-        this.addingTaks = true;
+        this.addingBags = true;
         this.editedItem.contractBN = localStorage.serviceBN;
         this.editedItem.contractId = localStorage.serviceID;
         this.dialog = true;
       }
       
     },
+
+    //---SNACKBARS
     callSnackbar(color,text){
       this.snackbarColor = color;
       this.snackbarText = text;
       this.snackbar = true;
     },
+
+    //---FECHAS
     setDateTime(){
       this.currentDate = moment().locale('es');
       this.currentTime = moment().format('LTS');
@@ -276,9 +293,28 @@ export default {
       this.currentDate = moment().locale('es');
       this.currentTime = moment().format('LTS');
     },
+    formatDate(date){
+
+      return date ? moment(date).format("DD-MM-YYYY") : '';
+    },
+    recibirFechaIni(value){ //emit de fechas modal
+
+      this.editedItem.initDate = value.inicio;
+    },
+    recibirFechaFin(value){ //emit de fechas modal
+
+      this.editedItem.endDate = value.fin;
+    },
+    limpiarFechas(){ //al hacer click en nuevo nos aseguramos de que se borran las fechas
+
+      this.editedItem.initDate = null;
+      this.editedItem.endDate = null;
+    },
+
+    //---OPERACIONES BASE DE DATOS
     async getFromBd(){
 
-      let response = await axios.get(this.url2);
+      let response = await axios.get(this.url2); //cogemos url2 ya que aqui se encuentran los cálculos de horas restantes
 
       if(response.data != null){ //como vamos a acceder al método forEach, tenemos que comprobar que no lo estamos haciendo de un null
 
@@ -293,7 +329,7 @@ export default {
         );
 
         this.bolsas = this.bolsasAux;
-        this.bolsasAux = [];
+        this.bolsasAux = []; //reinciamos variable para no acumular bolsas
 
         this.bolsas = this.bolsas.sort((a,b)=>{
           return a.contractId - b.contractId;
@@ -308,7 +344,7 @@ export default {
 
     async cargarServicios(){
 
-      let response = await axios.get(this.urlServicios); //response.data
+      let response = await axios.get(this.urlServicios); //cogemos los servicios que existen
 
       response.data.forEach(contract => {
 
@@ -323,53 +359,20 @@ export default {
     async saveInBd(){
 
       await axios.post(this.url, this.editedItem);
+      this.callSnackbar("green","Añadido correctamente");
     },
     async updateInBd(){
 
       await axios.put(this.url, this.editedItem);
+      this.callSnackbar("green","Editado correctamente");
     },
     async deleteInBd(id){
 
       await axios.delete(this.url+"/"+id);
-    },
-    formatDate(date){
-
-      return date ? moment(date).format("DD-MM-YYYY") : '';
-    },
-    recibirFechasDeCalendar(value){
-
-      this.editedItem.initDate = moment(value.inicio);
-      this.editedItem.endDate = moment(value.fin);
-    },
-    recibirFechaIni(value){
-
-      this.editedItem.initDate = value.inicio;
-    },
-    recibirFechaFin(value){
-
-      this.editedItem.endDate = value.fin;
-    },
-    ordenPersonalizado(items, index, isDesc) {
-
-      items.sort((a, b) => {
-        if (index === "fecha") {
-          if (!isDesc[0]) {
-            if (a.fecha > b.fecha) return 1;
-            else if (a.fecha < b.fecha) return -1;
-            else return 0;
-
-          }
-        }else {
-          if (!isDesc[0]) {
-            return a[index] < b[index] ? -1 : 1;
-          } else {
-            return b[index] < a[index] ? -1 : 1;
-          }
-        }
-      });
-      return items;
+      this.callSnackbar("green","Borrado correctamente");
     },
 
+    //---OPERACIONES BASE DE DATOS
     editItem(item) {
       this.editedIndex = this.bolsas.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -387,7 +390,6 @@ export default {
       this.deleteInBd(this.editedItem.id);
       this.closeDelete();
       this.getFromBd();
-      this.callSnackbar("red","Borrado correctamente");
     },
 
     close() {
@@ -396,7 +398,7 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
 
-        this.addingTaks = false; //cuando cierras el cuadro, se reinician si es que veníamos de añadir tareas 
+        this.addingBags = false; //cuando cierras el cuadro, se reinician si es que veníamos de añadir tareas 
         localStorage.serviceBN = "";
         localStorage.serviceID = "";
       });
@@ -417,36 +419,65 @@ export default {
     },
 
     save() {
-      if(this.$refs.form3.validate() && (this.editedItem.initDate != null) && (this.editedItem.endDate != null)){
-      if (this.editedIndex > -1) {
-        this.getFromBd();
-        this.updateInBd();
-        this.getFromBd();
-        this.callSnackbar("orange","Editado correctamente");
-      } else {
-        this.getFromBd();
-        this.editedItem.contractBN = this.findById(this.editedItem.contractId); //en este punto, editedItem.contractBN está vacío asi que tenemos que rellenarlo
-        this.saveInBd(); //para guardar la bolsa necesitamos el id de su contrato
-        this.getFromBd();
-        this.callSnackbar("green","Añadido correctamente");
-      }
-      this.close();
-    }
-    },
-    findById(id){
+      if(this.$refs.form3.validate() && (this.editedItem.initDate != null) && (this.editedItem.endDate != null)){ //si esta validado
+      
+        if(moment(this.editedItem.initDate).isBefore(moment(this.editedItem.endDate)) || moment(this.editedItem.initDate).isSame(moment(this.editedItem.endDate))){//y las fechas estan bien
+          
+          if (this.editedIndex > -1) {
+            this.getFromBd();
+            this.updateInBd();
+            this.getFromBd();
+          } else {
+            this.getFromBd();
+            this.editedItem.contractBN = this.findById(this.editedItem.contractId); //en este punto, editedItem.contractBN está vacío asi que tenemos que rellenarlo
+            this.saveInBd(); //para guardar la bolsa necesitamos el id de su contrato
+            this.getFromBd();
+          }
 
-      for (let i = 0; i < this.benefNombre.length; i++) {
-        if(this.benefNombre[i].id == id){
-          return this.benefNombre[i].name;
+          this.close();
+        }else{
+
+          this.callSnackbar("red","Las fechas están mal ordenadas.");
         }
       }
     },
-    limpiarFechas(){
 
-      this.editedItem.initDate = null;
-      this.editedItem.endDate = null;
+    //---SORTING
+    ordenPersonalizado(items, index, isDesc) {
+      items.sort((a, b) => {
+        if (index[0] === "initDate" || index[0] === "endDate") {
+          
+          if (!isDesc[0]) {
+            if (a[index] > b[index]) return 1;
+            else if (a[index] < b[index]) return -1;
+            else return 0;
+
+          }else{
+
+            if (a[index] < b[index]) return 1;
+            else if (a[index] > b[index]) return -1;
+            else return 0;
+          }
+        }else {
+          if (!isDesc[0]) {
+            return a[index] < b[index] ? -1 : 1;
+          } else {
+            return a[index] > b[index] ? -1 : 1;
+          }
+        }
+      });
+      return items;
     },
 
+    //---IR A OTRA PESTAÑA
+    testClick(item){
+      this.auxItem = item;
+    },
+    testDbclick(){
+
+      localStorage.id = this.auxItem.contractId;
+      this.goToPath("/detalles");
+    },
     goToDetails(item){
 
       localStorage.id = item.contractId;
@@ -454,6 +485,16 @@ export default {
     },
     goToPath(path) {
       if (this.$router.currentRoute.path != path) this.$router.push(path);
+    },
+
+    //---OTROS
+    findById(id){
+
+      for (let i = 0; i < this.benefNombre.length; i++) {
+        if(this.benefNombre[i].id == id){
+          return this.benefNombre[i].name;
+        }
+      }
     },
   },
 };

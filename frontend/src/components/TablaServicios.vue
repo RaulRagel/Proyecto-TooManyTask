@@ -18,7 +18,7 @@
     >
 
     <ul v-if="snackbarText != ''">
-      <li v-for="warns in snackbarText" :key="warns">
+      <li v-for="(warns,index) in snackbarText" :key="index">
           {{warns}}
       </li>
     </ul>
@@ -37,13 +37,17 @@
       </template>
     </v-snackbar>
 
+    <!-- TABLA -->
     <v-data-table
       :headers="headers"
       :items="servicios"
       class="elevation-5 secondary_variant"
       :custom-sort="ordenPersonalizado"
-      
+      @dblclick:row="testDbclick"
+      @click:row="testClick"
+      title="Doble click en un servicio para ver sus detalles"
     >
+
       <template v-slot:[`item.createdAt`]="{item}">
         {{formatDate(item.createdAt)}}
       </template>
@@ -166,7 +170,7 @@
 
 
       <template v-slot:[`item.warnings`]="{ item }">
-        <v-chip :color="getColor(item.warnings)" text-color="black" outlined label @click="showWarnings(item.warningList)">
+        <v-chip :color="getColor(item.warnings)" text-color="black" outlined label @click="showWarnings(item.warningList)" title="Mostrar avisos">
           {{ item.warnings }}
         </v-chip>
       </template>
@@ -198,11 +202,11 @@ export default {
       class: String,
       filter: Boolean,
     },
-
   },
     
 
   data: () => ({
+    //---VALIDACIONES
     benefRules: [
       v => !!v || 'Nombre  de beneficiario es requerido',
       v => v.length <= 100 || 'Beneficiario debe ser menor a 10 caracteres',
@@ -212,12 +216,16 @@ export default {
       v => v.length <= 100 || 'Nombre debe ser menor a 10 caracteres',
     ],
     valid:false,
+
+    //---DIÁLOGOS
     dialog: false,
     dialogDelete: false,
+
+    //---FECHA Y HORA ACTUAL
     currentDate: '',
     currentTime: '',
-    item: '',
     
+    //---ITEMS
     editedIndex: -1,
     editedItem: {
       beneficiary: "",
@@ -239,17 +247,20 @@ export default {
       id: "",
       totalHours: 0,
     },
+    auxItem: "", //guardamos la fila al hacer doble click
 
+    //---SNACKBAR
     snackbarText: "",
     snackbarColor: "",
     snackbar: false,
     snackbarWarnings: false,
-    
     timeout: 1500,
 
+    //---API
     servicios: [],
     urlCrud: "http://localhost:8080/contract",
     urlGet: "http://localhost:8080/contractBT",
+    error: false,
 
   }),
 
@@ -258,12 +269,11 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Servicio" : "Editando Servicio";
     },
-    
   },
 
   watch: {
     dialog(val) {
-      val || this.close();
+      val || this.close(); //if(val) this.close()
     },
     dialogDelete(val) {
       val || this.closeDelete();
@@ -275,6 +285,8 @@ export default {
     this.setDateTime();
   },
   methods: {
+
+    //---SNACKBARS
     callSnackbar(color,text){
       this.snackbarColor = color;
       this.snackbarText = text;
@@ -285,6 +297,8 @@ export default {
       this.snackbarText = text;
       this.snackbarWarnings = true;
     },
+    
+    //---FECHAS
     setDateTime(){
       this.currentDate = moment();
       this.currentTime = moment().format('LTS'); //inicializar
@@ -294,7 +308,16 @@ export default {
       this.currentDate = moment().locale('es');
       this.currentTime = moment().format('LTS');
     },
+    recibirNuevaFecha(value){ //fecha del modal
 
+      this.editedItem.createdAt = value;
+    },
+
+    formatDate(fecha){
+      return fecha ? moment(fecha).format("DD-MM-YYYY") : '';
+    },
+
+    //---OPERACIONES BASE DE DATOS
     async getFromBd(){
 
       let response = await axios.get(this.urlGet);
@@ -307,68 +330,43 @@ export default {
 
     async saveInBd(){
 
-      await axios.post(this.urlCrud, this.editedItem);
+      await axios.post(this.urlCrud, this.editedItem).catch(() => this.error = true);
+
+      if(!this.error) this.callSnackbar("green","Añadido correctamente");
+      else this.callSnackbar("red","Error al añadir, el servicio ya existe");
+
+      this.error = false; //reiniciamos
+
     },
     async updateInBd(){
 
-      await axios.put(this.urlCrud, this.editedItem);
+      await axios.put(this.urlCrud, this.editedItem).catch(() => this.error = true);
+
+      if(!this.error) this.callSnackbar("green","Actualizado correctamente");
+      else this.callSnackbar("red","Error al editar, el servicio ya existe");
+
+      this.error = false;
     },
     async deleteInBd(id){
 
       await axios.delete(this.urlCrud+"/"+id);
+      this.callSnackbar("green","Borrado correctamente");
     },
 
-    recibirNuevaFecha(value){
-
-      this.editedItem.createdAt = value;
-    },
-
-    formatDate(fecha){
-      return fecha ? moment(fecha).format("DD-MM-YYYY") : '';
-    },
-
-    ordenPersonalizado(items, index, isDesc) {
-      items.sort((a, b) => {
-        if (index === "fecha") {
-          if (!isDesc[0]) {
-            if (a.fecha > b.fecha) return 1;
-            else if (a.fecha < b.fecha) return -1;
-            else return 0;
-
-          }
-        }else {
-          if (!isDesc[0]) {
-            return a[index] < b[index] ? -1 : 1;
-          } else {
-            return b[index] < a[index] ? -1 : 1;
-          }
-        }
-      });
-      return items;
-    },
-
-    editItem(item) { //al hacer click en el lápiz, rellenamos editedItem con el item que pinchemos
-      this.editedIndex = this.servicios.indexOf(item); //editamos el servicio 3, por ejemplo
-      this.editedItem = Object.assign({}, item);
+    //---OPERACIONES DEL USUARIO
+    editItem(item) { //click en el lápiz
+      this.editedIndex = this.servicios.indexOf(item); //guardamos el índice del item que pinchemos
+      this.editedItem = Object.assign({}, item); //rellenamos editedItem con el item que pinchemos
       this.dialog = true;
     },
 
-    deleteItem(item) {
+    deleteItem(item) { //click en la papelera
       this.editedIndex = this.servicios.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
-    deleteItemConfirm() {
-      
-      this.deleteInBd(this.editedItem.id);
-      this.closeDelete();
-      this.getFromBd();
-
-      this.callSnackbar("red","Borrado correctamente");
-    },
-
-    close() {
+    close() { //click en cancelar (del dialog)
       
       this.dialog = false;
       this.$nextTick(() => {
@@ -381,7 +379,13 @@ export default {
       this.$refs.form1.resetValidation();
     },
 
-    closeDelete() {
+    deleteItemConfirm() { //click en confirmar (del dialog delete)
+      this.deleteInBd(this.editedItem.id);
+      this.closeDelete();
+      this.getFromBd();
+    },
+
+    closeDelete() { //click en cancelar (del dialog delete)
       this.dialogDelete = false;
       this.$nextTick(() => {
         
@@ -393,7 +397,7 @@ export default {
       this.$refs.form1.resetValidation();
     },
 
-    save() {
+    save() { //guardar o actualizar en la bd
       
       if(this.$refs.form1.validate()){
 
@@ -403,7 +407,6 @@ export default {
           this.getFromBd();
           this.updateInBd();
           this.getFromBd();
-          this.callSnackbar("orange","Editado correctamente");
 
         } else {
 
@@ -411,13 +414,52 @@ export default {
           this.getFromBd();
           this.saveInBd();
           this.getFromBd();
-          this.callSnackbar("green","Añadido correctamente");
         }
 
-
         this.close();
-
       }
+    },
+
+    showWarnings(warnings){
+
+      this.callWarningSnackbar("secondary_variant",warnings);
+    },
+
+    //---SORTING
+    ordenPersonalizado(items, index, isDesc) {
+      items.sort((a, b) => {
+        if (index[0] === "createdAt") {
+          
+          if (!isDesc[0]) {
+            if (a.createdAt > b.createdAt) return 1;
+            else if (a.createdAt < b.createdAt) return -1;
+            else return 0;
+
+          }else{
+
+            if (a.createdAt < b.createdAt) return 1;
+            else if (a.createdAt > b.createdAt) return -1;
+            else return 0;
+          }
+        }else {
+          if (!isDesc[0]) {
+            return a[index] < b[index] ? -1 : 1;
+          } else {
+            return a[index] > b[index] ? -1 : 1;
+          }
+        }
+      });
+      return items;
+    },
+
+    //---IR A OTRA PESTAÑA
+    testClick(item){ //primer click, coge el item
+      this.auxItem = item;
+    },
+    testDbclick(){ //segundo click, nos redirige a la vista detalles
+
+      localStorage.id = this.auxItem.id;
+      this.goToPath("/detalles");
     },
 
     goToDetails(item){
@@ -426,25 +468,22 @@ export default {
       this.goToPath("/detalles");
     },
 
-    goToPath(path) {
+    goToPath(path) { //ir a
       if (this.$router.currentRoute.path != path) this.$router.push(path);
     },
-    goToPathAdd(item,path) {
+    goToPathAdd(item,path) { //ir a y añadir registro
       localStorage.serviceBN = "["+item.beneficiary+"] "+item.name;
       localStorage.serviceID = item.id;
       if (this.$router.currentRoute.path != path) this.$router.push(path);
     },
     
-    getColor (warnings) {
+    //---OTROS
+    getColor (warnings) { //color de los warnings de la tabla
       if (warnings > 4) return 'red'
       else if (warnings > 2) return 'orange'
       else return 'green'
     },
 
-    showWarnings(warnings){
-
-      this.callWarningSnackbar("secondary_variant",warnings);
-    }
   },
 };
-</script>
+</script> 

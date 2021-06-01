@@ -16,7 +16,7 @@ export default new Vuetify({
         background: "#E5E0DB",
         blanco: "#FFFFFF",
         negro: "#000000",
-/** ----------------------------------------------------------------------------- **/
+
         warning: "#FFFF00", 
         accent: "#8c9eff", 
         error: "#D50000",
@@ -31,7 +31,7 @@ export default new Vuetify({
         background: "#685A4B",
         blanco: "#FFFFFF",
         negro: "#000000",
-/** ----------------------------------------------------------------------------- **/
+
         warning: "#FFFF00", 
         accent: "#8c9eff", 
         error: "#D50000",

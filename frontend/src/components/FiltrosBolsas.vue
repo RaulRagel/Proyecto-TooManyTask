@@ -1,16 +1,21 @@
 <template>
   <div>
-      <v-list-item>
+      <v-list-item >
         <v-icon>mdi-magnify</v-icon>
 
         <v-list-item-content>
-          <v-list-item-title class="ml-3"><h3>Filtrar por:</h3></v-list-item-title>
+          <v-list-item-title class="ml-3" ><h3>Filtros:</h3></v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
-      <v-divider></v-divider>
+      <!-- ITEMS -->
+      <v-list dense color="secondary_variant">
 
-      <v-list dense color="secondary_variant" >
+      <v-row justify="center" align="center" class="my-1">
+        <v-btn text color="primary" @click="limpiayEnvia" :disabled="isDisabled">Limpiar filtros</v-btn>
+      </v-row>
+
+      <v-divider></v-divider>
 
         <!--Servicio-->
         <v-list-item>
@@ -85,10 +90,6 @@
         </v-list-item>
           
       </v-list>
-
-      <div align="center" class="py-3">
-        <v-btn color="primary_variant" elevation="3" @click="limpiayEnvia">Limpiar todos</v-btn>
-      </div>
 </div>
 </template>
 <script>
@@ -101,7 +102,7 @@ export default {
   },
   data() {
     return {
-      drawer: null,
+
       serviciosActivos: [
         {name: "-- Mostrar todos --"},
       ],
@@ -117,11 +118,31 @@ export default {
           fin: null,
         },
       },
+      filtroDefault:{
+        switchTotales: false,
+        switchRestantes: false,
+        filtroServicio: "-- Mostrar todos --",
+        filtroNombre: "",
+        filtroHorasTotales: "",
+        filtroHorasRestantes: "",
+        filtroFechas: {
+          inicio: null,
+          fin: null,
+        },
+      },
 
       urlServicios: "http://localhost:8080/contract",
     };
   },
+  computed:{
+    isDisabled(){
+      return JSON.stringify(this.filtro)===JSON.stringify(this.filtroDefault) ? true : false;
+    }
+  },
   methods: {
+    enviarFiltro(){
+      this.$emit("misFiltros",this.filtro);
+    },
     cargarServicios(){
       axios.get(this.urlServicios)
         .then((respuesta)=>{
@@ -141,27 +162,19 @@ export default {
         this.filtro.filtroServicio = localStorage.verPorFiltro;
         localStorage.verPorFiltro = "";
 
-        this.$emit("misFiltros",this.filtro);
+        this.enviarFiltro();
       }
     },
     recibirFechasDeCalendar(value){
       this.filtro.filtroFechas.inicio = value.inicio;
       this.filtro.filtroFechas.fin = value.fin;
 
-      this.$emit("misFiltros",this.filtro);
-    },
-    enviarFiltro(){
-      this.$emit("misFiltros",this.filtro);
+      this.enviarFiltro();
     },
     limpiayEnvia(){
       
-      this.filtro.switchTotales = false;
-      this.filtro.switchRestantes = false;
-      this.filtro.filtroFechas.inicio = "";
-      this.filtro.filtroFechas.fin = "";
-      this.filtro.filtroServicio = "-- Mostrar todos --";
-      this.filtro.filtroHorasTotales = "";
-      this.filtro.filtroHorasRestantes = "";
+      this.filtro = Object.assign({}, this.filtroDefault);
+
       this.$refs.calendarComponent.limpiayEnvia(); //referencia al componente Calendar y llama a su método para limpiar
 
       //this.$emit("misFiltros",this.filtro); //ya no hace falta porque limpiayEnvia llama a recibirFechasCalendar

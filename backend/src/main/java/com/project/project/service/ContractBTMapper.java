@@ -14,8 +14,10 @@ public class ContractBTMapper {
         ContractBTDTO contractBTDTO = new ContractBTDTO();
 
         contractBTDTO.setId(contract.getId());
-        contractBTDTO.setName(contract.getName());
-        contractBTDTO.setBeneficiary(contract.getBeneficiary());
+
+        contractBTDTO.setName(upperCaseFirst(contract.getName()));  //convertimos siempre la primera en mayúscula
+        contractBTDTO.setBeneficiary(upperCaseFirst(contract.getBeneficiary()));
+
         contractBTDTO.setCreatedAt(contract.getCreatedAt());
 
         //-------------LISTA DE BOLSAS DE HORAS
@@ -112,9 +114,14 @@ public class ContractBTMapper {
 
         if(contractBTDTO.getHourBagsList().isEmpty()) warningList.add("No hay bolsas de horas en el servicio");
 
-        if(contractBTDTO.getAvailableHours() < 5) warningList.add("Se están acabando las horas disponibles");
+        if(contractBTDTO.getAvailableHours() < 5){
 
-        if(contractBTDTO.getAvailableHours() == 0) warningList.add("No quedan horas disponibles");
+            if(contractBTDTO.getAvailableHours() == 0) {
+                warningList.add("No quedan horas disponibles");
+            }else {
+                warningList.add("Se están acabando las horas disponibles");
+            }
+        }
 
         if(contractBTDTO.getTaskList().isEmpty()) warningList.add("No hay tareas en el servicio");
 
@@ -134,7 +141,7 @@ public class ContractBTMapper {
             if(tareasImportantes > 9) warningList.add("Se están acumulando las tareas importantes");
         }
 
-
+        if(contractBTDTO.getTotalInvested()>contractBTDTO.getTotalHours()) warningList.add("Has invertido "+(contractBTDTO.getTotalInvested()-contractBTDTO.getTotalHours())+" horas más de las que tienes");
 
         return warningList;
     }
@@ -153,5 +160,10 @@ public class ContractBTMapper {
         6 Has invertido tiempo a alguna tareas pero no has cambiado su estado
      */
 
+    public static String upperCaseFirst(String val) {
+        char[] arr = val.toCharArray();
+        arr[0] = Character.toUpperCase(arr[0]);
+        return new String(arr);
+    }
 
 }

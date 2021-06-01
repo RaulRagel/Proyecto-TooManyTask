@@ -20,9 +20,14 @@ public class TaskMapper {
          "["+task.getContract().getBeneficiary()+"] "+task.getContract().getName()
         );
 
-        taskDTO.setDescription(task.getDescription());
+        taskDTO.setTitle(upperCaseFirst(task.getTitle()));
 
-        taskDTO.setTitle(task.getTitle());
+        if(!task.getDescription().equals("")){
+            taskDTO.setDescription(upperCaseFirst(task.getDescription()));
+        }else{
+            taskDTO.setDescription(task.getDescription());
+        }
+
         taskDTO.setCreatedAt(task.getCreatedAt());
         taskDTO.setInvestedTime(task.getInvestedTime());
         taskDTO.setPriority(task.getPriority());
@@ -58,5 +63,11 @@ public class TaskMapper {
         task.setContract(contract);
 
         return task;
+    }
+
+    public static String upperCaseFirst(String val) {
+        char[] arr = val.toCharArray();
+        arr[0] = Character.toUpperCase(arr[0]);
+        return new String(arr);
     }
 }
