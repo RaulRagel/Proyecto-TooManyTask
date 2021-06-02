@@ -6,29 +6,41 @@ public class HoursBagDTO {
 
     private Long id;
 
+    private String contractBN;
+
+    private Long contractId;
+
     private LocalDate initDate;
 
     private LocalDate endDate;
 
     private Long hours;
 
+    private Long remaining;
+
     private LocalDate createdAt;
 
-    private Long contractId;
-
-    private String contractBN;
 
     public HoursBagDTO() {
     }
 
-    public HoursBagDTO(Long id, LocalDate initDate, LocalDate endDate, Long hours, LocalDate createdAt, Long contractId, String contractBN) { //
+    public HoursBagDTO(Long id, String contractBN, Long contractId, LocalDate initDate, LocalDate endDate, Long hours, Long remaining, LocalDate createdAt) {
         this.id = id;
+        this.contractBN = contractBN;
+        this.contractId = contractId;
         this.initDate = initDate;
         this.endDate = endDate;
         this.hours = hours;
+        this.remaining = remaining;
         this.createdAt = createdAt;
-        this.contractId = contractId;
-        this.contractBN = contractBN;
+    }
+
+    public Long getRemaining() {
+        return remaining;
+    }
+
+    public void setRemaining(Long remaining) {
+        this.remaining = remaining;
     }
 
     public Long getId() {

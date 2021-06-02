@@ -42,9 +42,11 @@
       :headers="headers"
       :items="servicios"
       class="elevation-5 secondary_variant"
-      :custom-sort="ordenPersonalizado"
+      :custom-sort="customSorting"
       @dblclick:row="testDbclick"
       @click:row="testClick"
+      sort-by="pin"
+      :sort-desc="true"
       title="Doble click en un servicio para ver sus detalles"
     >
 
@@ -175,6 +177,14 @@
         </v-chip>
       </template>
 
+      <template v-slot:[`item.pin`]="{ item }">
+        <v-btn icon>
+          <v-icon small @click="pinned(item)" :color="pinnedColor(item.pin)" title="Fijar">
+            mdi-pin
+          </v-icon>
+        </v-btn>
+      </template>
+
       <template v-slot:no-data>
         <v-btn color="secondary" @click="getFromBd"> Recargar datos </v-btn>
       </template>
@@ -236,6 +246,7 @@ export default {
       warnings: 0,
       id: "",
       totalHours: 0,
+      pin: false,
     },
     defaultItem: {
       beneficiary: "",
@@ -246,6 +257,7 @@ export default {
       warnings: 0,
       id: "",
       totalHours: 0,
+      pin: false,
     },
     auxItem: "", //guardamos la fila al hacer doble click
 
@@ -320,7 +332,7 @@ export default {
     //---OPERACIONES BASE DE DATOS
     async getFromBd(){
 
-      let response = await axios.get(this.urlGet);
+      let response = await axios.get(this.urlGet); //los datos los cogemos del endpoint contractBT, pero los modificamos en contract
       this.servicios = response.data;
 
       this.servicios = this.servicios.sort((a,b)=>{
@@ -364,6 +376,19 @@ export default {
       this.editedIndex = this.servicios.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
+    },
+
+    pinned(item){ //click en la estrella
+
+      item.pin = !item.pin;
+
+      this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
+
+      this.getFromBd();
+      this.updateInBd();
+      this.getFromBd();
+
+      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
     },
 
     close() { //click en cancelar (del dialog)
@@ -426,9 +451,11 @@ export default {
     },
 
     //---SORTING
-    ordenPersonalizado(items, index, isDesc) {
+    customSorting(items, index, isDesc) {
+ 
       items.sort((a, b) => {
-        if (index[0] === "createdAt") {
+
+        if (index[0] === "createdAt") { //columna createdAt
           
           if (!isDesc[0]) {
             if (a.createdAt > b.createdAt) return 1;
@@ -441,7 +468,8 @@ export default {
             else if (a.createdAt > b.createdAt) return -1;
             else return 0;
           }
-        }else {
+
+        }else { //el resto de columnas
           if (!isDesc[0]) {
             return a[index] < b[index] ? -1 : 1;
           } else {
@@ -483,7 +511,11 @@ export default {
       else if (warnings > 2) return 'orange'
       else return 'green'
     },
-
+    
+    pinnedColor(pin){
+      if(pin) return 'primary'
+      else return 'grey darken'
+    }
   },
 };
 </script> 

@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class HoursBagService {
 
     private final HoursBagRepository hoursBagRepository;
-    //private final ContractService contractService;
 
     HoursBagService(HoursBagRepository hoursBagRepository) {
         this.hoursBagRepository = hoursBagRepository;
@@ -25,20 +25,15 @@ public class HoursBagService {
     }
 
     public HoursBagDTO getHourBagById(Long idHoursBag) {
-        return HoursBagMapper.toDto(hoursBagRepository.findById(idHoursBag).isPresent() ?
-                hoursBagRepository.findById(idHoursBag).get() : new HoursBag());
+
+        Optional<HoursBag> hourBag = hoursBagRepository.findById(idHoursBag);
+
+        if(hourBag.isPresent()){
+            return HoursBagMapper.toDto(hourBag.get());
+        }
+
+        return new HoursBagDTO();
     }
-
-    /*public HoursBagDTO create(HoursBagDTO hoursBagDTO) {
-        hoursBagDTO.setCreatedAt(LocalDate.now());
-
-        String benef = contractService.getContractById(hoursBagDTO.getContractId()).getBeneficiary();
-        String name = contractService.getContractById(hoursBagDTO.getContractId()).getName();
-
-        hoursBagDTO.setContractBN("["+benef+"]"+name);
-
-        return HoursBagMapper.toDto(hoursBagRepository.save(HoursBagMapper.toEntity(hoursBagDTO)));
-    }*/
 
      public HoursBagDTO create(HoursBagDTO hoursBagDTO) {
         hoursBagDTO.setCreatedAt(LocalDate.now());
@@ -52,8 +47,7 @@ public class HoursBagService {
 
     public void deleHoursBagById(Long idHourBag) {
 
-        HoursBagDTO hourBag = getHourBagById(idHourBag);
-        hoursBagRepository.delete(HoursBagMapper.toEntity(hourBag));
+        hoursBagRepository.deleteById(idHourBag);
     }
 
     public void deleteHoursBags() {

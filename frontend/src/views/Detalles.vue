@@ -83,6 +83,7 @@
           :items="tareas"
           class="elevation-5 secondary_variant"
           @click:row="evento"
+          title="Click en una tarea para ver su descripción"
         >
             <template v-slot:top>
               <v-toolbar flat class="blanco--text" color="primary_variant">

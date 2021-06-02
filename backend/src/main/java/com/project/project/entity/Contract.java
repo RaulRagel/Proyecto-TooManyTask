@@ -25,6 +25,9 @@ public class Contract implements Serializable {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
+    @Column(name = "pin")
+    private boolean pin;
+
     @OneToMany(mappedBy = "contract")
     private List<HoursBag> hoursBagList;
 
@@ -39,6 +42,14 @@ public class Contract implements Serializable {
         this.name = name;
         this.beneficiary = beneficiary;
         this.createdAt = createdAt;
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
     }
 
     public Long getId() {
@@ -87,5 +98,15 @@ public class Contract implements Serializable {
 
     public void setTaskList(List<Task> taskList) {
         this.taskList = taskList;
+    }
+
+    @Override
+    public String toString() {
+        return "Contract{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", beneficiary='" + beneficiary + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

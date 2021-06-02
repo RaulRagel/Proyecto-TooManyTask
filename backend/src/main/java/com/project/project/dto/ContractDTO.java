@@ -13,20 +13,44 @@ public class ContractDTO {
     private LocalDate createdAt;
 
     private int tasks;
+
+    private Long totalHours;
+
     private int hourBags;
+
     private int warnings;
+
+    private boolean pin;
 
     public ContractDTO() {
     }
 
-    public ContractDTO(Long id, String name, String beneficiary, LocalDate createdAt, int tasks, int hourBags, int warnings) {
+    public ContractDTO(Long id, String name, String beneficiary, LocalDate createdAt, int tasks, Long totalHours, int hourBags, int warnings, boolean pin) {
         this.id = id;
         this.name = name;
         this.beneficiary = beneficiary;
         this.createdAt = createdAt;
         this.tasks = tasks;
+        this.totalHours = totalHours;
         this.hourBags = hourBags;
         this.warnings = warnings;
+        this.pin = pin;
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
+
+    public Long getTotalHours() {
+        return totalHours;
+    }
+
+    public void setTotalHours(Long totalHours) {
+        this.totalHours = totalHours;
     }
 
     public Long getId() {

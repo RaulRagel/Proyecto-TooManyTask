@@ -82,6 +82,7 @@ export default {
     initialize() {
 
       this.headers = [
+       
         { text: "BENEFICIARIO", value: "beneficiary", sortable: true, align: "start", class: "primary--text secondary",
           filter: f => { 
             if(this.filtro.filtroBeneficiario != ""){
@@ -157,6 +158,7 @@ export default {
           }
         },
         { text: "ACCIONES", value: "actions", sortable: false, align: "start", class: "primary--text secondary" },
+        { text: "", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
       ]
     },
   }

@@ -18,8 +18,14 @@ public class Task implements Serializable {
     @Column(name = "title")
     private String title;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "created_at")
     private LocalDate createdAt;
+
+    @Column(name = "finished_at")
+    private LocalDate finishedAt;
 
     @Column(name = "invested_time")
     private int investedTime;
@@ -30,21 +36,51 @@ public class Task implements Serializable {
     @Column(name = "state")
     private String state;
 
+    @Column(name = "pin")
+    private boolean pin;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id")
     private Contract contract;
 
+
     public Task() {
     }
 
-    public Task(Long id, String title, LocalDate createdAt, int investedTime, String priority, String state, Contract contract) {
+    public Task(Long id, String title, String description, LocalDate createdAt, LocalDate finishedAt, int investedTime, String priority, String state, Contract contract) {
         this.id = id;
         this.title = title;
+        this.description = description;
         this.createdAt = createdAt;
+        this.finishedAt = finishedAt;
         this.investedTime = investedTime;
         this.priority = priority;
         this.state = state;
         this.contract = contract;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getFinishedAt() {
+        return finishedAt;
+    }
+
+    public void setFinishedAt(LocalDate finishedAt) {
+        this.finishedAt = finishedAt;
     }
 
     public Long getId() {

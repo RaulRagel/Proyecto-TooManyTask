@@ -9,7 +9,11 @@ public class TaskDTO {
 
     private String title;
 
+    private String description;
+
     private LocalDate createdAt;
+
+    private LocalDate finishedAt;
 
     private int investedTime;
 
@@ -21,18 +25,46 @@ public class TaskDTO {
 
     private String contractBN;
 
+    private boolean pin;
+
     public TaskDTO() {
     }
 
-    public TaskDTO(Long id, String title, LocalDate createdAt, int investedTime, String priority, String state, Long contractId, String contractBN) {
+    public TaskDTO(Long id, String title, String description, LocalDate createdAt, LocalDate finishedAt, int investedTime, String priority, String state, Long contractId, String contractBN) {
+
         this.id = id;
         this.title = title;
         this.createdAt = createdAt;
+        this.finishedAt = finishedAt;
         this.investedTime = investedTime;
         this.priority = priority;
         this.state = state;
         this.contractId = contractId;
         this.contractBN = contractBN;
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getFinishedAt() {
+        return finishedAt;
+    }
+
+    public void setFinishedAt(LocalDate finishedAt) {
+        this.finishedAt = finishedAt;
     }
 
     public Long getId() {

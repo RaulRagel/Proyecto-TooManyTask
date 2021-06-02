@@ -1,6 +1,6 @@
 <template>
   <div>
-  <v-snackbar
+    <v-snackbar
         v-model="snackbar"
         :timeout="timeout"
         :color="snackbarColor"
@@ -12,7 +12,7 @@
       :headers="headers"
       :items="bolsas"
       class="elevation-5 secondary_variant"
-      :custom-sort="ordenPersonalizado"
+      :custom-sort="customSorting"
       @dblclick:row="testDbclick"
       @click:row="testClick"
       title="Doble click en una bolsa para ver su servicio"
@@ -443,7 +443,7 @@ export default {
     },
 
     //---SORTING
-    ordenPersonalizado(items, index, isDesc) {
+    customSorting(items, index, isDesc) {
       items.sort((a, b) => {
         if (index[0] === "initDate" || index[0] === "endDate") {
           

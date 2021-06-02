@@ -13,9 +13,11 @@
       :headers="headers"
       :items="tareas"
       class="elevation-1 secondary_variant"
-      :custom-sort="ordenPersonalizado"
+      :custom-sort="customSorting"
       @dblclick:row="testDbclick"
       @click:row="testClick"
+      sort-by="pin"
+      :sort-desc="true"
       title="Doble click en una tarea para ver su servicio"
     >
       <template v-slot:[`item.createdAt`]="{item}">
@@ -185,11 +187,7 @@
         </v-chip>
       </template>
 
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-icon title="Ver servicio" small class="mr-2" @click="goToDetails(item)"> mdi-eye </v-icon>
-        <v-icon title="Editar la tarea." small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon title="Borrar la tarea." small @click="deleteItem(item)"> mdi-delete </v-icon>
-      </template>
+      
 
       <template v-slot:[`item.investedTime`]="{ item }">
         {{item.investedTime}}h
@@ -199,7 +197,21 @@
       <template v-slot:[`item.description`]="{ item }">
        <span v-if="item.description != '' && item.description.length > 14">{{item.description.substring(0,12)}}...</span>
        <span v-else-if="item.description != ''">{{item.description}}</span>
-       <span v-else><i>Sin descripción</i></span>
+       <span v-else class="grey--text text--darken-2"><i>Sin descripción</i></span>
+      </template>
+
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon title="Ver servicio" small class="mr-2" @click="goToDetails(item)"> mdi-eye </v-icon>
+        <v-icon title="Editar la tarea." small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+        <v-icon title="Borrar la tarea." small @click="deleteItem(item)"> mdi-delete </v-icon>
+      </template>
+
+      <template v-slot:[`item.pin`]="{ item }">
+        <v-btn icon>
+          <v-icon small @click="pinned(item)" :color="pinnedColor(item.pin)" title="Fijar">
+            mdi-pin
+          </v-icon>
+        </v-btn>
       </template>
 
       <template v-slot:no-data>
@@ -269,7 +281,8 @@ export default {
       priority: "2",
       state: "1",
       description: "",
-      contractId: ""
+      contractId: "",
+      pin: false,
     },
     defaultItem: {
       id: "",
@@ -280,7 +293,8 @@ export default {
       priority: "2",
       state: "1",
       description: "",
-      contractId: ""
+      contractId: "",
+      pin: false,
     },
 
 
@@ -394,7 +408,7 @@ export default {
     async updateInBd(){
 
       await axios.put(this.url, this.editedItem);
-      this.callSnackbar("green","Editado correctamente");
+      this.callSnackbar("green","Actualizado correctamente");
     },
     async deleteInBd(id){
 
@@ -413,6 +427,19 @@ export default {
       this.editedIndex = this.tareas.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
+    },
+
+    pinned(item){ //click en la estrella
+
+      item.pin = !item.pin;
+
+      this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
+
+      this.getFromBd();
+      this.updateInBd();
+      this.getFromBd();
+
+      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
     },
 
     deleteItemConfirm() {
@@ -465,7 +492,7 @@ export default {
     },
 
     //---SORTING
-    ordenPersonalizado(items, index, isDesc) {
+    customSorting(items, index, isDesc) {
 
       items.sort((a, b) => {
         if (index[0] === "createdAt") {
@@ -563,6 +590,10 @@ export default {
           return "";
       }
     },
+    pinnedColor(pin){
+      if(pin) return 'primary'
+      else return 'grey darken'
+    }
   },
 };
 </script>

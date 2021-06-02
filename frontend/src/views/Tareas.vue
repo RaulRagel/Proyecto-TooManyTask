@@ -134,6 +134,7 @@ export default {
            }
          }},
         { text: "ACCIONES", value: "actions", sortable: false, class: "primary--text secondary" },
+        { text: "FIJAR", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
       ]
     },
   }
