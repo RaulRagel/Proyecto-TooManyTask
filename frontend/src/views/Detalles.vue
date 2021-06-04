@@ -2,6 +2,7 @@
   <div class="ma-10">
     <v-row>
       <v-col cols="9">
+        <!-- TITULO -->
         <v-card
           class="pa-3"
           elevation="5"
@@ -18,6 +19,7 @@
           </v-toolbar>
         </v-card>
 
+        <!--CONTENIDO DETALLES DE SERVICIO-->
         <v-card color="secondary" class="pa-3 primary--text" tile>
           <v-row>
             <v-col sm="2"><h3>Beneficiario</h3></v-col>
@@ -30,7 +32,7 @@
             <v-row>
               <v-col sm="2"> {{ servicio.beneficiary }}</v-col>
               <v-col sm="5">{{servicio.name}}</v-col>
-              <v-col sm="2">{{servicio.createdAt}}</v-col>
+              <v-col sm="2">{{formatDate(servicio.createdAt)}}</v-col>
             </v-row>
         </v-card>
 
@@ -122,6 +124,15 @@
               </v-dialog>
                       
             </template>
+            <template v-slot:[`item.createdAt`]="{item}">
+              {{formatDate(item.createdAt)}}
+              
+            </template>
+
+            <template v-slot:[`item.finishedAt`]="{item}">
+              {{formatDate(item.finishedAt)}}
+              
+            </template>
             
             <template v-slot:[`item.priority`]="{ item }">
               <v-chip :color="getColorPriority(item.priority)" text-color="black" outlined label>
@@ -142,8 +153,9 @@
             </template>
 
             <template v-slot:[`item.description`]="{ item }">
-              <span v-if="item.description != ''">{{item.description.substring(0,15)}}...</span>
-              <span v-else><i>Sin descripción</i></span>
+              <span v-if="item.description != '' && item.description.length > 14">{{item.description.substring(0,12)}}...</span>
+              <span v-else-if="item.description != ''">{{item.description}}</span>
+              <span v-else class="grey--text text--darken-2"><i>Sin descripción</i></span>
             </template>
 
         </v-data-table>
@@ -168,17 +180,88 @@
             </v-toolbar>
 
           </template>
+
+          <template v-slot:[`item.initDate`]="{item}">
+            {{formatDate(item.initDate)}}
+          </template>
+
+          <template v-slot:[`item.endDate`]="{item}">
+            {{formatDate(item.endDate)}}
+          </template>
         </v-data-table>
       </v-col>
     </v-row>
+
+    <!--GRÁFICOS-->
+    <!-- TAREAS -->
+    <v-row>
+      <v-col cols="7">
+        <v-card elevation="5">
+          <v-container fluid>
+            <v-row class="child-flex">
+              <v-toolbar flat class="blanco--text" color="primary_variant" tile>
+
+                <v-toolbar-title><h3>Gráfico tareas</h3></v-toolbar-title>
+                
+                <v-spacer></v-spacer>
+
+                <v-toolbar-title><h4>Cambiar tipo de gráfico</h4></v-toolbar-title>
+                <v-toolbar-items class="mt-4">
+
+                  <v-switch
+                    v-model="sw"
+                    color="white"
+                    class="pa-3 custom-red"
+                    :title="switchTitle"
+                  >
+                  </v-switch>
+                </v-toolbar-items>
+              </v-toolbar>
+            </v-row>
+          </v-container>
+        </v-card>
+
+        <v-card color="secondary_variant" class="pa-5" tile>
+        
+          <grafico-tareas 
+            :sw="sw" 
+            :datosGraficoEstado="graficoTareasEstado"
+            :datosGraficoPrioridad="graficoTareasPrioridad">
+
+          </grafico-tareas>
+          
+        </v-card>
+      </v-col>
+
+      <!-- BOLSAS DE HORAS -->
+      <v-col cols="5">
+        <v-card elevation="5">
+          <v-toolbar flat class="blanco--text" color="primary_variant" tile>
+            <v-toolbar-title><h3>Gráfico bolsas</h3></v-toolbar-title>
+          </v-toolbar>
+        </v-card>
+
+        <v-card color="secondary_variant" class="pa-5" tile>
+        
+            aqui va el grafico
+          
+        </v-card>
+      </v-col>
+    </v-row>
+
+
   </div>
 </template>
 
 <script>
+import moment from "moment";
 import axios from "axios";
+import GraficoTareas from '../components/GraficoTareas.vue';
 export default {
   name: "Detalles",
-  components: {},
+  components: {
+    GraficoTareas,
+  },
   data: () => ({
     dialog: false,
     url: "http://localhost:8080/contractBT",
@@ -192,12 +275,26 @@ export default {
       taskList: [],
       warningList: []
     },
+    graficoTareasEstado: {
+      values: {
+        pendientes: 0,
+        finalizadas: 0,
+        enCurso: 0,
+      },
+    },
+    graficoTareasPrioridad: {
+      values: {
+        alta: 0,
+        media: 0,
+        baja: 0,
+      },
+    },
+    sw: false,
     fila: {},
     headersTareas: [],
     headersBolsas: [],
     tareas: [],
     bolsas: [],
-    sw: false,
   }),
   created() {
     this.initialize();
@@ -208,21 +305,20 @@ export default {
     },
     disabledBags(){
       return this.servicio.hourBagsList.length != 0 ? false : true;
+    },
+    switchTitle(){
+      return this.sw ? "Ver prioridades" : "Ver estados";
     }
   },
   methods: {
-    evento(value) {
-      this.fila = value;
-      this.dialog = true;
-    },
-    getLength(array) {
-      return array.length;
-    },
-    initialize() {
+    async initialize() {
       this.id = localStorage.id;
-      this.getFromBd();
+      await this.getFromBd();
       this.setHeaders();
+      this.initChart();
     },
+    
+    //---DATOS
     async getFromBd() {
       let response = await axios.get(this.url + "/" + this.id);
 
@@ -239,6 +335,8 @@ export default {
       });
 
     },
+
+    //---HEADERS
     setHeaders() {
       (this.headersTareas = [
         { text: "TITULO", value: "title", class: "primary--text secondary" },
@@ -256,6 +354,51 @@ export default {
           { text: "HORAS RESTANTES", value: "remaining", align: "start", class: "primary--text secondary",},
         ]);
     },
+
+    //---GRÁFICO
+    initChart(){
+      this.tareas.forEach(element => {
+        switch(element.state){
+          case "1": 
+            this.graficoTareasEstado.values.pendientes++;
+          break;
+          case "2": 
+            this.graficoTareasEstado.values.enCurso++;
+          break;
+          case "3": 
+            this.graficoTareasEstado.values.finalizadas++;
+          break;
+          default: break;
+        }
+      });
+      this.tareas.forEach(element => {
+        switch(element.priority){
+          case "1": this.graficoTareasPrioridad.values.alta++;
+          break;
+          case "2": this.graficoTareasPrioridad.values.media++;
+          break;
+          case "3": this.graficoTareasPrioridad.values.baja++;
+          break;
+          default: break;
+        }
+      });
+    },
+
+    //---FECHAS
+    formatDate(date){
+      return date ? moment(date).format("DD-MM-YYYY") : '';
+    },
+    
+    //---RUTAS
+    goToPath(path) {
+      if (this.$router.currentRoute.path != path) this.$router.push(path);
+    },
+    goToPathFilter(path) {
+      localStorage.verPorFiltro = "["+this.servicio.beneficiary+"] "+this.servicio.name;
+      if (this.$router.currentRoute.path != path) this.$router.push(path);
+    },
+
+    //---OTROS
     getColorPriority (prioridad) {
       if (prioridad == "1") return 'red'
       else if (prioridad == "2") return 'orange'
@@ -268,13 +411,20 @@ export default {
       else if (estado == "3") return 'green'
       else return 'black'
     },
-    goToPath(path) {
-      if (this.$router.currentRoute.path != path) this.$router.push(path);
+    evento(value) {
+      this.fila = value;
+      this.dialog = true;
     },
-    goToPathFilter(path) {
-      localStorage.verPorFiltro = "["+this.servicio.beneficiary+"] "+this.servicio.name;
-      if (this.$router.currentRoute.path != path) this.$router.push(path);
+    getLength(array) {
+      return array.length;
     },
   },
 };
 </script>
+
+<style>
+  .custom-red .v-input--selection-controls__input {
+    color: white;
+  }
+  
+</style>

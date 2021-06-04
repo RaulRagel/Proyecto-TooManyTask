@@ -384,6 +384,7 @@ export default {
       this.tareas = this.tareas.sort((a,b)=>{
         return a.id - b.id;
       });
+
     },
 
     async cargarServicios(){
@@ -428,25 +429,42 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
+    async changeState(item){ //hay algo asincrono
+      
+      let num = parseInt(item.state);
 
-    pinned(item){ //click en la estrella
+      if(num > 2) num = 1;
+      else num++;
+      
+      item.state = num.toString();
+
+      this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
+      
+      await this.updateInBd(); //esperar este proceso
+      
+      await this.getFromBd();
+
+      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
+
+    },
+    async pinned(item){ //click en la chincheta
 
       item.pin = !item.pin;
 
       this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
 
-      this.getFromBd();
-      this.updateInBd();
-      this.getFromBd();
+      await this.updateInBd();
+
+      await this.getFromBd();
 
       this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
     },
 
-    deleteItemConfirm() {
+    async deleteItemConfirm() {
 
-      this.deleteInBd(this.editedItem.id);
+      await this.deleteInBd(this.editedItem.id);
       this.closeDelete();
-      this.getFromBd();
+      await this.getFromBd();
     },
 
     close() {
@@ -475,17 +493,17 @@ export default {
       this.$refs.form2.resetValidation();
     },
 
-    save() {
+    async save() {
       if(this.$refs.form2.validate()){
         if (this.editedIndex > -1) {
-          this.getFromBd();
-          this.updateInBd();
-          this.getFromBd();
+
+          await this.updateInBd();
+          await this.getFromBd();
         } else {
-          this.getFromBd();
+
           this.editedItem.contractBN = this.findById(this.editedItem.contractId); //en este punto, editedItem.contractBN está vacío asi que tenemos que rellenarlo
-          this.saveInBd();
-          this.getFromBd();
+          await this.saveInBd();
+          await this.getFromBd();
         }
         this.close();
       }
@@ -559,24 +577,6 @@ export default {
       else if (estado == "2") return 'blue'
       else if (estado == "3") return 'green'
       else return 'black'
-    },
-    changeState(item){
-      
-      let num = parseInt(item.state);
-
-      if(num > 2) num = 1;
-      else num++;
-      
-      item.state = num.toString();
-
-      this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
-      
-      this.getFromBd();
-      this.updateInBd();
-      this.getFromBd();
-
-      this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
-
     },
     titleState(state){
       switch(state){

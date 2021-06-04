@@ -4,6 +4,7 @@ CREATE TABLE public.task (
 	id bigint NOT NULL,
 	CONSTRAINT task_pk PRIMARY KEY (id),
 	title varchar(100) NOT NULL,
+	description varchar(100) NULL,
 	created_at timestamp(0) NULL,
 	finished_at timestamp(0) NULL,
 	invested_time int NULL,

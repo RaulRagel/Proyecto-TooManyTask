@@ -385,11 +385,11 @@ export default {
       this.dialogDelete = true;
     },
 
-    deleteItemConfirm() {
+    async deleteItemConfirm() {
       
-      this.deleteInBd(this.editedItem.id);
+      await this.deleteInBd(this.editedItem.id);
       this.closeDelete();
-      this.getFromBd();
+      await this.getFromBd();
     },
 
     close() {
@@ -418,20 +418,20 @@ export default {
       this.$refs.form3.resetValidation();
     },
 
-    save() {
+    async save() {
       if(this.$refs.form3.validate() && (this.editedItem.initDate != null) && (this.editedItem.endDate != null)){ //si esta validado
       
         if(moment(this.editedItem.initDate).isBefore(moment(this.editedItem.endDate)) || moment(this.editedItem.initDate).isSame(moment(this.editedItem.endDate))){//y las fechas estan bien
           
           if (this.editedIndex > -1) {
-            this.getFromBd();
-            this.updateInBd();
-            this.getFromBd();
+
+            await this.updateInBd();
+            await this.getFromBd();
           } else {
-            this.getFromBd();
+
             this.editedItem.contractBN = this.findById(this.editedItem.contractId); //en este punto, editedItem.contractBN está vacío asi que tenemos que rellenarlo
-            this.saveInBd(); //para guardar la bolsa necesitamos el id de su contrato
-            this.getFromBd();
+            await this.saveInBd(); //para guardar la bolsa necesitamos el id de su contrato
+            await this.getFromBd();
           }
 
           this.close();

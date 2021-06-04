@@ -378,15 +378,14 @@ export default {
       this.dialogDelete = true;
     },
 
-    pinned(item){ //click en la estrella
+    async pinned(item){ //click en la estrella
 
       item.pin = !item.pin;
 
       this.editedItem = Object.assign({}, item); //asignamos para actualizar el editedItem
 
-      this.getFromBd();
-      this.updateInBd();
-      this.getFromBd();
+      await this.updateInBd();
+      await this.getFromBd();
 
       this.editedItem = Object.assign({}, this.defaultItem); //reseteamos para que al darle a nuevo no tenga info
     },
@@ -404,10 +403,10 @@ export default {
       this.$refs.form1.resetValidation();
     },
 
-    deleteItemConfirm() { //click en confirmar (del dialog delete)
-      this.deleteInBd(this.editedItem.id);
+    async deleteItemConfirm() { //click en confirmar (del dialog delete)
+      await this.deleteInBd(this.editedItem.id);
       this.closeDelete();
-      this.getFromBd();
+      await this.getFromBd();
     },
 
     closeDelete() { //click en cancelar (del dialog delete)
@@ -422,23 +421,21 @@ export default {
       this.$refs.form1.resetValidation();
     },
 
-    save() { //guardar o actualizar en la bd
+    async save() { //guardar o actualizar en la bd
       
       if(this.$refs.form1.validate()){
 
         if (this.editedIndex > -1) {
 
           //actualizamos
-          this.getFromBd();
-          this.updateInBd();
-          this.getFromBd();
+          await this.updateInBd();
+          await this.getFromBd();
 
         } else {
 
           //guardamos
-          this.getFromBd();
-          this.saveInBd();
-          this.getFromBd();
+          await this.saveInBd();
+          await this.getFromBd();
         }
 
         this.close();
