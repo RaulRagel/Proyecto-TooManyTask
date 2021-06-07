@@ -76,7 +76,7 @@
                 Nuevo
               </v-btn>
 
-              <v-btn color="primary" dark class="mb-2 mr-4" title="Exportar en formato Excel.">
+              <v-btn @click="exportar" color="primary" dark class="mb-2 mr-4" title="Exportar en formato Excel.">
                 Exportar
               </v-btn>
             </template>
@@ -195,6 +195,7 @@
 </template>
 
 <script>
+//import {json2excel, excel2json} from 'js2excel';
 import FechaModal from '@/components/FechaModal.vue';
 import moment from "moment";
 import axios from "axios";
@@ -512,7 +513,18 @@ export default {
     pinnedColor(pin){
       if(pin) return 'primary'
       else return 'grey darken'
-    }
+    },
+    // exportar(){
+    //   try {
+    //     json2excel({
+    //         data,
+    //         name: 'servicios-info-data',
+    //         formateDate: 'dd/mm/yyyy'
+    //     });
+    // } catch (e) {
+    //     console.error('export error');
+    // }
+    // }
   },
 };
 </script> 

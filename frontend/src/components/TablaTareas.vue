@@ -90,7 +90,7 @@
                   </v-row>
 
                   <v-row>
-                    <v-col sm="8">
+                    <v-col sm="6">
                       <v-text-field
                         v-model="editedItem.title"
                         label="Titulo"
@@ -98,12 +98,20 @@
                         :rules="titleRules"
                       ></v-text-field>
                     </v-col>
-                    <v-col sm="4">
+                    <v-col sm="3">
                       <v-text-field
-                        v-model.number="editedItem.investedTime"
-                        label="Tiempo invertido"
+                        v-model.number="editedItem.hours"
+                        label="Horas"
                         required
                         :rules="timeRules"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col sm="3">
+                      <v-text-field
+                        v-model.number="editedItem.minutes"
+                        label="Minutos"
+                        required
+                        :rules="minRules"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -190,7 +198,7 @@
       
 
       <template v-slot:[`item.investedTime`]="{ item }">
-        {{item.investedTime}}h
+        {{item.investedTime.toFixed(2)}}<b>h</b>
       </template>
 
 
@@ -254,6 +262,10 @@ export default {
     timeRules: [
       v => v >= 0 || 'Introduce un numero mayor que 0',
     ],
+    minRules: [
+      v => v >= 0 || 'Introduce un numero mayor que 0',
+      v => v <=59 || 'Introduce un número menor que 60',
+    ],
     valid:false,
 
     //---DIÁLOGOS
@@ -277,7 +289,8 @@ export default {
       contractBN: "",
       title: "",
       createdAt: moment(),
-      investedTime: 0,
+      hours: 0,
+      minutes: 0,
       priority: "2",
       state: "1",
       description: "",
@@ -289,7 +302,8 @@ export default {
       contractBN: "",
       title: "",
       createdAt: moment(),
-      investedTime: 0,
+      hours: 0,
+      minutes: 0,
       priority: "2",
       state: "1",
       description: "",
@@ -307,7 +321,7 @@ export default {
     //---API
     tareas:[],
     benefNombre:[], //beneficiario+nombre
-    url: "http://localhost:8080/task",
+    url: "http://localhost:8080/task", //de donde cogemos las tareas
     urlServicios: "http://localhost:8080/contract",
 
     //---Otros

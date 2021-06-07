@@ -22,9 +22,6 @@
     <v-btn @click="goToPath('/bolsahoras')" color=" on_button" plain
       >Bolsa de horas</v-btn
     >
-    <v-btn @click="goToPath('/grafico')" color=" on_button" plain
-      >Gráfico</v-btn
-    >
     <v-btn @click="cambiarTema" color=" on_button" plain>Cambiar tema</v-btn>
     <!--<v-icon class="mr-2">mdi-view-list</v-icon>-->
   </v-app-bar>

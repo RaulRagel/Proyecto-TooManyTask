@@ -7,7 +7,7 @@ CREATE TABLE public.task (
 	description varchar(100) NULL,
 	created_at timestamp(0) NULL,
 	finished_at timestamp(0) NULL,
-	invested_time int NULL,
+	invested_time decimal(5,2) NULL,
     priority varchar(10) NOT NULL,
     state  varchar(10) NOT NULL,
 	contract_id bigint NULL,

@@ -158,6 +158,10 @@
               <span v-else class="grey--text text--darken-2"><i>Sin descripción</i></span>
             </template>
 
+            <template v-slot:[`item.investedTime`]="{ item }">
+              {{item.investedTime.toFixed(2)}}<b>h</b>
+            </template>
+
         </v-data-table>
       </v-col>
       <v-col sm="5">
@@ -297,6 +301,7 @@ export default {
       values:{
         arrTotales: [],
         arrRestantes: [],
+        arrFechas: [],
       }
     },
     sw: false,
@@ -357,12 +362,12 @@ export default {
         { text: "PRIORIDAD", value: "priority",class: "primary--text secondary",},
         { text: "ESTADO", value: "state", class: "primary--text secondary" },
       ]),
-        (this.headersBolsas = [
-          { text: "FECHA DE INICIO", value: "initDate", align: "start", class: "primary--text secondary",},
-          { text: "FECHA DE FIN", value: "endDate", align: "start", class: "primary--text secondary",},
-          { text: "HORAS TOTALES", value: "hours", align: "start", class: "primary--text secondary",},
-          { text: "HORAS RESTANTES", value: "remaining", align: "start", class: "primary--text secondary",},
-        ]);
+      (this.headersBolsas = [
+        { text: "FECHA DE INICIO", value: "initDate", align: "start", class: "primary--text secondary",},
+        { text: "FECHA DE FIN", value: "endDate", align: "start", class: "primary--text secondary",},
+        { text: "HORAS TOTALES", value: "hours", align: "start", class: "primary--text secondary",},
+        { text: "HORAS RESTANTES", value: "remaining", align: "start", class: "primary--text secondary",},
+      ]);
     },
 
     //---GRÁFICO
@@ -393,11 +398,9 @@ export default {
         }
       });
       this.bolsas.forEach(element => {
-        //array de horas totales, array de horas restantes
         this.graficoBolsas.values.arrTotales.push(element.hours);
         this.graficoBolsas.values.arrRestantes.push(element.remaining);
-
-        //console.log(this.graficoBolsas.values.arrRestantes);
+        this.graficoBolsas.values.arrFechas.push(element.initDate+"<br/>"+element.endDate);
       });
     },
 

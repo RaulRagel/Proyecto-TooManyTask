@@ -25,22 +25,16 @@ export default {
       values: {
         arrTotales: Array,
         arrRestantes: Array,
+        arrFechas: Array,
       },
     },
-
   },
-  computed:{
-    // graphset:[
-    // ]
-  },
-  created(){
-    
+  methods:{
   },
   watch:{ //cuando cambia algun componente de datosGrafico, rellenamos datos de mySeries
     datosGrafico:{
       deep: true,
       handler(){
-
         this.mySeries= [
           {
             type: "bar",
@@ -49,6 +43,7 @@ export default {
             backgroundColor:"#80CBC4",
             borderColor: "black",
             borderWidth: 3,
+            labels: this.datosGrafico.values.arrFechas,
           },
           {
             type: "bar",
@@ -59,11 +54,14 @@ export default {
             borderWidth: 3,
           },
         ];
+
+        //TODO No podemos asignar labels desde aqui
+        //this.myData.scaleX.values = this.datosGrafico.values.arrFechas;
+        //console.log(this.datosGrafico.values.arrFechas);
       }
     },
   },
 //text: '%t\n%npv%',
-//data
   data() {
     return{
       myData:{
@@ -97,10 +95,10 @@ export default {
         backgroundColor: '#E5E0DB',
         height: '500px',
         title: {
+          offsetX: 10,
           fontColor: "black",
           text: 'Bolsas de horas',
           align: "left",
-          offsetX: 10,
           fontFamily: "Open Sans",
           fontSize: 25
         },
@@ -114,7 +112,7 @@ export default {
           align: "left",
         },
       },
-        mySeries: [],
+      mySeries: [],
     };
   }
 };

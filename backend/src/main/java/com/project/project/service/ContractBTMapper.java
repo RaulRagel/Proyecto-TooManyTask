@@ -1,7 +1,6 @@
 package com.project.project.service;
 
 import com.project.project.dto.ContractBTDTO;
-import com.project.project.dto.ContractDTO;
 import com.project.project.entity.Contract;
 
 import java.util.ArrayList;
@@ -52,17 +51,18 @@ public class ContractBTMapper {
         contractBTDTO.setTotalHours(Long.parseLong(String.valueOf(sum)));
 
         //-------------CALCULO TIEMPO INVERTIDO
-        sum = 0;
+        double dec = 0;
 
         if(contractBTDTO.getTaskList() != null)
         for (int i = 0; i < contractBTDTO.getTaskList().size(); i++) {
-            sum += contractBTDTO.getTaskList().get(i).getInvestedTime();
+            dec += contractBTDTO.getTaskList().get(i).getInvestedTime();
         }
+        dec = Math.round(dec); //redondeamos las horas invertidas a la alza
 
-        contractBTDTO.setTotalInvested(Long.parseLong(String.valueOf(sum))); //variable que mostramos
+        contractBTDTO.setTotalInvested(new Double(dec).longValue()); //variable que mostramos
 
         //-----------CALCULO HORAS RESTANTES
-        contractBTDTO.setTotalInvestedAux(Long.parseLong(String.valueOf(sum))); //variable que usamos para los cálculos de horas restantes
+        contractBTDTO.setTotalInvestedAux(new Double(dec).longValue()); //variable que usamos para los cálculos de horas restantes
 
         boolean puedeConsumir = true;
 
@@ -131,6 +131,7 @@ public class ContractBTMapper {
 
         if(!contractBTDTO.getTaskList().isEmpty()){
             int tareasImportantes = 0;
+            int warningsPendiente = 0;
 
             for (int i = 0; i < contractBTDTO.getTaskList().size(); i++) {
                 if(contractBTDTO.getTaskList().get(i).getPriority().equals("1")){ //prioridad alta
@@ -138,9 +139,13 @@ public class ContractBTMapper {
                 }
 
                 if(contractBTDTO.getTaskList().get(i).getState().equals("1") && contractBTDTO.getTaskList().get(i).getInvestedTime() > 0){ //estado pendiente y tiempo > 0
-                    warningList.add("Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'");
+
+                    warningsPendiente++;
                 }
             }
+
+            if(warningsPendiente > 0)
+            warningList.add("("+warningsPendiente+") Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'");
 
             if(tareasImportantes > 5) warningList.add("Se están acumulando las tareas importantes ("+tareasImportantes+")");
         }

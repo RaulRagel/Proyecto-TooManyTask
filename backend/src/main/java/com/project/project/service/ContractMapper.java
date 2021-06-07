@@ -1,12 +1,7 @@
 package com.project.project.service;
 
-import com.project.project.dto.ContractBTDTO;
 import com.project.project.dto.ContractDTO;
 import com.project.project.entity.Contract;
-import com.project.project.entity.Task;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContractMapper {
 
@@ -23,17 +18,17 @@ public class ContractMapper {
         if(contract.getHoursBagList() != null) contractDTO.setHourBags(contract.getHoursBagList().size());
         else contractDTO.setHourBags(0);
 
-        int sum = 0;
+        double sum = 0;
 
-        if(contract.getTaskList() != null){ //si no estaba vacía
+        if(contract.getTaskList().size() != 0){ //si no estaba vacía
 
             contractDTO.setTasks(contract.getTaskList().size()); //marcamos su numero de tareas
 
             for(int i=0;i<contract.getTaskList().size();i++){
-                sum += contract.getTaskList().get(i).getInvestedTime();
+                sum += contract.getTaskList().get(i).getHours();
             }
 
-            contractDTO.setTotalHours(Long.parseLong(String.valueOf(sum)));
+            contractDTO.setTotalHours(new Double(sum).longValue());
         }else{
 
             contractDTO.setTasks(0);

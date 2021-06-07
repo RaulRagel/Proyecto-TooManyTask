@@ -27,8 +27,11 @@ public class Task implements Serializable {
     @Column(name = "finished_at")
     private LocalDate finishedAt;
 
-    @Column(name = "invested_time")
-    private int investedTime;
+    @Column(name = "hours")
+    private double hours;
+
+    @Column(name = "minutes")
+    private double minutes;
 
     @Column(name = "priority")
     private String priority;
@@ -47,16 +50,24 @@ public class Task implements Serializable {
     public Task() {
     }
 
-    public Task(Long id, String title, String description, LocalDate createdAt, LocalDate finishedAt, int investedTime, String priority, String state, Contract contract) {
+    public Task(Long id, String title, String description, LocalDate createdAt, LocalDate finishedAt, int hours, String priority, String state, Contract contract) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.createdAt = createdAt;
         this.finishedAt = finishedAt;
-        this.investedTime = investedTime;
+        this.hours = hours;
         this.priority = priority;
         this.state = state;
         this.contract = contract;
+    }
+
+    public double getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(double minutes) {
+        this.minutes = minutes;
     }
 
     public String getDescription() {
@@ -99,12 +110,12 @@ public class Task implements Serializable {
         this.title = title;
     }
 
-    public int getInvestedTime() {
-        return investedTime;
+    public double getHours() {
+        return hours;
     }
 
-    public void setInvestedTime(int investedTime) {
-        this.investedTime = investedTime;
+    public void setHours(double hours) {
+        this.hours = hours;
     }
 
     public String getPriority() {

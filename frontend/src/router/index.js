@@ -29,12 +29,6 @@ const routes = [
     component: () => import("../views/BolsaHoras.vue"),
   },
   {
-    path: "/grafico",
-    name: "GraficoGeneral",
-
-    component: () => import("../views/GraficoGeneral.vue"),
-  },
-  {
     path: "/detalles",
     name: "Detalles",
 

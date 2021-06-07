@@ -1,9 +1,7 @@
 package com.project.project.service;
 
-import com.project.project.dto.HoursBagDTO;
 import com.project.project.dto.TaskDTO;
 import com.project.project.entity.Contract;
-import com.project.project.entity.HoursBag;
 import com.project.project.entity.Task;
 
 import java.time.LocalDate;
@@ -29,7 +27,13 @@ public class TaskMapper {
         }
 
         taskDTO.setCreatedAt(task.getCreatedAt());
-        taskDTO.setInvestedTime(task.getInvestedTime());
+
+        //------Tiempo invertido
+
+        taskDTO.setHours(task.getHours());
+        taskDTO.setMinutes(task.getMinutes());
+        taskDTO.setInvestedTime(task.getHours()+(task.getMinutes()/60));
+
         taskDTO.setPriority(task.getPriority());
         taskDTO.setState(task.getState());
 
@@ -55,10 +59,12 @@ public class TaskMapper {
         task.setDescription(taskDTO.getDescription());
         task.setCreatedAt(taskDTO.getCreatedAt());
         task.setFinishedAt(taskDTO.getFinishedAt());
-        task.setInvestedTime(taskDTO.getInvestedTime());
         task.setPriority(taskDTO.getPriority());
         task.setState(taskDTO.getState());
         task.setPin(taskDTO.isPin());
+
+        task.setHours(taskDTO.getHours());
+        task.setMinutes(taskDTO.getMinutes());
 
         Contract contract = new Contract();
         contract.setId(taskDTO.getContractId());

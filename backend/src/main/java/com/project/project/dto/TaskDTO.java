@@ -1,6 +1,5 @@
 package com.project.project.dto;
 
-import javax.persistence.Column;
 import java.time.LocalDate;
 
 public class TaskDTO {
@@ -15,7 +14,11 @@ public class TaskDTO {
 
     private LocalDate finishedAt;
 
-    private int investedTime;
+    private double investedTime; //es la suma de horas y minutos
+
+    private double hours;
+
+    private double minutes;
 
     private String priority;
 
@@ -41,6 +44,22 @@ public class TaskDTO {
         this.state = state;
         this.contractId = contractId;
         this.contractBN = contractBN;
+    }
+
+    public double getHours() {
+        return hours;
+    }
+
+    public void setHours(double hours) {
+        this.hours = hours;
+    }
+
+    public double getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(double minutes) {
+        this.minutes = minutes;
     }
 
     public boolean isPin() {
@@ -83,11 +102,11 @@ public class TaskDTO {
         this.title = title;
     }
 
-    public int getInvestedTime() {
+    public double getInvestedTime() {
         return investedTime;
     }
 
-    public void setInvestedTime(int investedTime) {
+    public void setInvestedTime(double investedTime) {
         this.investedTime = investedTime;
     }
 
