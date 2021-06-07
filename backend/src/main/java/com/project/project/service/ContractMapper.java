@@ -20,6 +20,7 @@ public class ContractMapper {
 
         double sum = 0;
 
+        if(contract.getTaskList() != null)
         if(contract.getTaskList().size() != 0){ //si no estaba vacía
 
             contractDTO.setTasks(contract.getTaskList().size()); //marcamos su numero de tareas

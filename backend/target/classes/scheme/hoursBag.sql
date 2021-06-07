@@ -11,5 +11,3 @@ CREATE TABLE public.hours_bag (
 	CONSTRAINT hours_bag_fk FOREIGN KEY (contract_id) REFERENCES public.contract(id)
 	ON DELETE CASCADE
 );
-
- -- contract_bn varchar(100) NULL,
