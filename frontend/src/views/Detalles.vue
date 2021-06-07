@@ -243,7 +243,9 @@
 
         <v-card color="secondary_variant" class="pa-5" tile>
         
-            aqui va el grafico
+            <grafico-bolsas :datosGrafico="graficoBolsas">
+
+            </grafico-bolsas>
           
         </v-card>
       </v-col>
@@ -257,10 +259,12 @@
 import moment from "moment";
 import axios from "axios";
 import GraficoTareas from '../components/GraficoTareas.vue';
+import GraficoBolsas from '../components/GraficoBolsas.vue';
 export default {
   name: "Detalles",
   components: {
     GraficoTareas,
+    GraficoBolsas,
   },
   data: () => ({
     dialog: false,
@@ -288,6 +292,12 @@ export default {
         media: 0,
         baja: 0,
       },
+    },
+    graficoBolsas: {
+      values:{
+        arrTotales: [],
+        arrRestantes: [],
+      }
     },
     sw: false,
     fila: {},
@@ -381,6 +391,13 @@ export default {
           break;
           default: break;
         }
+      });
+      this.bolsas.forEach(element => {
+        //array de horas totales, array de horas restantes
+        this.graficoBolsas.values.arrTotales.push(element.hours);
+        this.graficoBolsas.values.arrRestantes.push(element.remaining);
+
+        //console.log(this.graficoBolsas.values.arrRestantes);
       });
     },
 
