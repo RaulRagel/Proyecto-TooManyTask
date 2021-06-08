@@ -8,3 +8,6 @@ CREATE TABLE public.contract (
 	created_at timestamp(0) NULL,
     pin boolean NOT NULL
 );
+
+alter table contract
+add constraint contract_uq unique("name","beneficiary");

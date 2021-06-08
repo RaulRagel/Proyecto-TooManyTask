@@ -11,8 +11,6 @@
           <v-toolbar flat class="blanco--text" color="primary_variant" tile>
             <v-toolbar-title><h2>[{{ servicio.beneficiary }}] {{ servicio.name }}</h2></v-toolbar-title>
 
-            <v-spacer></v-spacer>
-
             <v-btn icon color="blanco" title="Ir a la tabla Servicios" @click="goToPath('/servicios')">
               <v-icon style="transform: scaleX(-1)">mdi-application-import</v-icon>
             </v-btn>
@@ -91,6 +89,20 @@
               <v-toolbar flat class="blanco--text" color="primary_variant">
 
                 <v-toolbar-title><h4>Tareas</h4></v-toolbar-title>
+
+                <v-spacer></v-spacer>
+
+                <download-excel
+                    :data="json_data"
+                    :fields="json_fields"
+                    :before-generate="makeTaskExcel"
+                    :name="excelName"
+                  >
+                    <v-btn class="primary">
+                      <v-icon left>mdi-file-excel</v-icon>
+                      Exportar a Excel 
+                    </v-btn>
+                </download-excel>
 
                 <v-spacer></v-spacer>
 
@@ -310,6 +322,10 @@ export default {
     headersBolsas: [],
     tareas: [],
     bolsas: [],
+
+    json_fields: {},
+    json_data: [],
+    excelName: "",
   }),
   created() {
     this.initialize();
@@ -437,6 +453,49 @@ export default {
     },
     getLength(array) {
       return array.length;
+    },
+
+    //---EXPORTAR A EXCEL
+    async makeTaskExcel(){
+
+      this.json_data = this.servicio.taskList;
+
+      this.excelName = this.servicio.beneficiary+"-"+this.servicio.name;
+
+      this.json_fields = { //encabezados
+
+        'Servicio':'contractBN',
+        'Titulo': 'title',
+        'Descripción': 'description',
+        'Fecha de creación': 'createdAt',
+        'Tiempo invertido': {
+          field: 'investedTime',
+          callback: (value) => {
+            return value.toFixed(2);
+          },
+        },
+        'Prioridad': {
+          field: 'priority',
+          callback: (value) => {
+            switch(value){
+              case "1": return "Alta";
+              case "2": return "Media";
+              case "3": return "Baja";
+            }
+          },
+        },
+        'Estado': {
+          field: 'state',
+          callback: (value) => {
+            switch(value){
+              case "1": return "Pendiente";
+              case "2": return "En curso";
+              case "3": return "Finalizado";
+            }
+          }
+        },
+      };
+
     },
   },
 };

@@ -7,7 +7,8 @@
       :color="snackbarColor"
       top
     > 
-      {{snackbarText}}
+      <h2>{{snackbarTitle}}</h2>
+      <h3>{{snackbarSubtitle}}</h3>
     </v-snackbar>
 
     <v-snackbar
@@ -17,8 +18,8 @@
       top
     >
 
-    <ul v-if="snackbarText != ''">
-      <li v-for="(warns,index) in snackbarText" :key="index">
+    <ul v-if="snackbarTitle != ''">
+      <li v-for="(warns,index) in snackbarTitle" :key="index">
           {{warns}}
       </li>
     </ul>
@@ -76,9 +77,18 @@
                 Nuevo
               </v-btn>
 
-              <v-btn @click="exportar" color="primary" dark class="mb-2 mr-4" title="Exportar en formato Excel.">
-                Exportar
-              </v-btn>
+              <download-excel
+                  :data="json_data"
+                  :fields="json_fields"
+                  :before-generate="getDataToJson"
+                  name="Contratos.xls"
+                >
+                  <v-btn dark color="primary" class="mb-2 mr-4" title="Exportar en formato Excel.">
+                    <v-icon left>mdi-file-excel</v-icon>
+                    Exportar a Excel 
+                  </v-btn>
+              </download-excel>
+
             </template>
 
             <v-card color="secondary" class="blanco--text">
@@ -263,18 +273,21 @@ export default {
     auxItem: "", //guardamos la fila al hacer doble click
 
     //---SNACKBAR
-    snackbarText: "",
+    snackbarTitle: "",
+    snackbarSubtitle: "",
     snackbarColor: "",
     snackbar: false,
     snackbarWarnings: false,
-    timeout: 1500,
+    timeout: 2000,
 
     //---API
     servicios: [],
     urlCrud: "http://localhost:8080/contract",
     urlGet: "http://localhost:8080/contractBT",
-    error: false,
 
+    //---EXPORTAR A EXCEL
+    json_data: [],
+    json_fields: {},
   }),
 
   computed: { 
@@ -301,13 +314,20 @@ export default {
 
     //---SNACKBARS
     callSnackbar(color,text){
+      this.snackbarSubtitle = "";
       this.snackbarColor = color;
-      this.snackbarText = text;
+      this.snackbarTitle = text;
+      this.snackbar = true;
+    },
+    callSnackbarSubtitle(color,text,subtext){
+      this.snackbarColor = color;
+      this.snackbarTitle = text;
+      this.snackbarSubtitle = subtext;
       this.snackbar = true;
     },
     callWarningSnackbar(color,text){
       this.snackbarColor = color;
-      this.snackbarText = text;
+      this.snackbarTitle = text;
       this.snackbarWarnings = true;
     },
     
@@ -341,29 +361,64 @@ export default {
       });
     },
 
-    async saveInBd(){
+    async saveInBd(){ //GUARDAR REGISTRO
+      await axios.post(this.urlCrud,this.editedItem).then((data) =>{
 
-      await axios.post(this.urlCrud, this.editedItem).catch(() => this.error = true);
+        //Salió bien
+        console.log(data);
+        this.callSnackbar("green","Añadido correctamente");
 
-      if(!this.error) this.callSnackbar("green","Añadido correctamente");
-      else this.callSnackbar("red","Error al añadir, el servicio ya existe");
+      }).catch((error) => {
 
-      this.error = false; //reiniciamos
-
+        //Salió mal
+        this.catchedError(error);
+      });
     },
-    async updateInBd(){
+    async updateInBd(){ //ACTUALIZAR REGISTRO
 
-      await axios.put(this.urlCrud, this.editedItem).catch(() => this.error = true);
+      await axios.put(this.urlCrud,this.editedItem).then((data) =>{
 
-      if(!this.error) this.callSnackbar("green","Actualizado correctamente");
-      else this.callSnackbar("red","Error al editar, el servicio ya existe");
+        console.log(data);
+        this.callSnackbar("green","Actualizado correctamente");
 
-      this.error = false;
+      }).catch((error) => {
+
+        this.catchedError(error);
+      });
     },
-    async deleteInBd(id){
+    async deleteInBd(id){ //BORRAR REGISTRO
 
-      await axios.delete(this.urlCrud+"/"+id);
-      this.callSnackbar("green","Borrado correctamente");
+      await axios.delete(this.urlCrud+"/"+id).then((data) =>{
+
+        console.log(data);
+        this.callSnackbar("green","Borrado correctamente");
+
+      }).catch((error) => {
+
+        this.catchedError(error);
+      });
+    },
+
+    catchedError(error){
+      //Hubo un error
+      if (error.response) {
+
+        // Se hizo la petición y el servidor respondió con un código de error
+        this.callSnackbarSubtitle("red","Error en el servidor","Puede que ya exista el servicio o que tengas un error en el código");
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+
+        // No hubo respuesta al hacer la petición
+        this.callSnackbar("red","Sin respuesta del servidor");
+        console.log(error.request);
+      } else {
+
+        this.callSnackbar("red","Algo salió mal");
+        console.log('Error', error.message);
+      }
+      console.log(error.config);
     },
 
     //---OPERACIONES DEL USUARIO
@@ -436,6 +491,7 @@ export default {
 
           //guardamos
           await this.saveInBd();
+          console.log("test");
           await this.getFromBd();
         }
 
@@ -514,17 +570,23 @@ export default {
       if(pin) return 'primary'
       else return 'grey darken'
     },
-    // exportar(){
-    //   try {
-    //     json2excel({
-    //         data,
-    //         name: 'servicios-info-data',
-    //         formateDate: 'dd/mm/yyyy'
-    //     });
-    // } catch (e) {
-    //     console.error('export error');
-    // }
-    // }
+
+    //---EXPORTAR A EXCEL
+    async getDataToJson(){
+      let response = await axios.get(this.urlCrud);
+      let serviciosExcel = response.data;
+
+      this.json_data = serviciosExcel; //datos que vamos a exportar
+
+      this.json_fields = { //encabezados
+        'Nombre': 'name',
+        'Beneficiario': 'beneficiary',
+        'Fecha de creación': 'createdAt',
+        'Tareas': 'tasks',
+        'Bolsas de horas': 'hourBags',
+        'Avisos': 'warnings',
+      };
+    },
   },
 };
-</script> 
+</script>

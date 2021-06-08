@@ -6,7 +6,7 @@
         :color="snackbarColor"
         top
       > 
-        {{snackbarText}}
+        {{snackbarTitle}}
       </v-snackbar>
     <v-data-table
       :headers="headers"
@@ -182,10 +182,11 @@ export default {
     
     //---VALIDACIONES
     selectRules: [
-      v => !!v || 'Nombre de beneficiario es requerido',
+      v => !!v || 'El beneficiario es requerido',
     ],
     timeRules: [
-      v => !!v || 'Añade un tiempo estimado',
+      v => v > -1 || 'Introduce un número positivo',
+      v => v <= 99999 || 'Es un número demasiado grande!',
     ],
     valid:false,
 
@@ -221,7 +222,7 @@ export default {
     },
 
     //---SNACKBAR
-    snackbarText: "",
+    snackbarTitle: "",
     snackbarColor: "",
     snackbar: false,
     timeout: 1500,
@@ -279,7 +280,7 @@ export default {
     //---SNACKBARS
     callSnackbar(color,text){
       this.snackbarColor = color;
-      this.snackbarText = text;
+      this.snackbarTitle = text;
       this.snackbar = true;
     },
 
@@ -358,18 +359,64 @@ export default {
 
     async saveInBd(){
 
-      await axios.post(this.url, this.editedItem);
-      this.callSnackbar("green","Añadido correctamente");
+      await axios.post(this.url, this.editedItem).then((data) =>{
+
+        //Salió bien
+        console.log(data);
+        this.callSnackbar("green","Añadido correctamente");
+
+      }).catch((error) => {
+
+        this.catchedError(error);
+      });
     },
     async updateInBd(){
 
-      await axios.put(this.url, this.editedItem);
-      this.callSnackbar("green","Editado correctamente");
+      await axios.put(this.url, this.editedItem).then((data) =>{
+
+        //Salió bien
+        console.log(data);
+        this.callSnackbar("green","Actualizado correctamente");
+
+      }).catch((error) => {
+
+        this.catchedError(error);
+      });
     },
     async deleteInBd(id){
 
-      await axios.delete(this.url+"/"+id);
-      this.callSnackbar("green","Borrado correctamente");
+      await axios.delete(this.url+"/"+id).then((data) =>{
+
+        //Salió bien
+        console.log(data);
+        this.callSnackbar("green","Borrado correctamente");
+
+      }).catch((error) => {
+
+        this.catchedError(error);
+      });
+    },
+
+    catchedError(error){
+      //Hubo un error
+      if (error.response) {
+
+        // Se hizo la petición y el servidor respondió con un código de error
+        this.callSnackbarSubtitle("red","Error en el servidor");
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+
+        // No hubo respuesta al hacer la petición
+        this.callSnackbar("red","Sin respuesta del servidor");
+        console.log(error.request);
+      } else {
+
+        this.callSnackbar("red","Algo salió mal");
+        console.log('Error', error.message);
+      }
+      console.log(error.config);
     },
 
     //---OPERACIONES BASE DE DATOS

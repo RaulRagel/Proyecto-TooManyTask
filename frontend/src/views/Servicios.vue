@@ -158,7 +158,7 @@ export default {
           }
         },
         { text: "ACCIONES", value: "actions", sortable: false, align: "start", class: "primary--text secondary" },
-        { text: "", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
+        { text: "FIJADOS", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
       ]
     },
   }

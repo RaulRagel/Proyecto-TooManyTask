@@ -1,7 +1,7 @@
 <template>
   <v-footer app style="background-color: black; color: white">
     <v-col class="text-center" cols="12">
-      <strong>Practicas Next 2021 Miguel García y Raúl Ragel</strong>
+      <strong>Prácticas Next 2021 - Miguel García y Raúl Ragel</strong>
     </v-col>
   </v-footer>
 </template>

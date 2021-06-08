@@ -160,13 +160,15 @@ public class ContractBTMapper {
 
         2  Se están acabando las horas disponibles
 
-        3  No quedan horas disponibles
+        3 No quedan horas disponibles
 
         4 No hay tareas en el servicio
 
-        5 Se están acumulando las tareas importantes
+        5 Se están acumulando las tareas importantes (x)
 
-        6 Has invertido tiempo a alguna tareas pero no has cambiado su estado
+        6 (x)Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'
+
+        7 Has invertido (x) horas más de las que tienes
      */
 
     public static String upperCaseFirst(String val) {

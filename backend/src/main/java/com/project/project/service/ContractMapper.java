@@ -20,7 +20,7 @@ public class ContractMapper {
 
         double sum = 0;
 
-        if(contract.getTaskList().size() != 0){ //si no estaba vacía
+        if(contract.getTaskList() != null){ //si no estaba vacía
 
             contractDTO.setTasks(contract.getTaskList().size()); //marcamos su numero de tareas
 
@@ -46,8 +46,8 @@ public class ContractMapper {
         Contract contract = new Contract();
 
         contract.setId(contractDTO.getId());
-        contract.setName(contractDTO.getName());
-        contract.setBeneficiary(contractDTO.getBeneficiary());
+        contract.setName(upperCaseFirst(contractDTO.getName()));
+        contract.setBeneficiary(upperCaseFirst(contractDTO.getBeneficiary()));
         contract.setCreatedAt(contractDTO.getCreatedAt());
         contract.setPin(contractDTO.isPin());
 
