@@ -1,7 +1,7 @@
 <template>
-<div>
-  <v-sheet color="background" class="overflow-hidden" >
-    <v-row>
+  <div>
+    <v-row color="background">
+      
       <!--FILTROS-->
       <v-col cols="2">
 
@@ -17,12 +17,11 @@
       <v-col cols="9" class="pt-10">
         
         <tabla-servicios v-bind:headers="headers"/>
-      </v-col>
-    </v-row>
 
-  </v-sheet>
-  
-</div>
+      </v-col>
+
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -49,6 +48,8 @@ export default {
         filtroTareas: "",
         filtroHoras: "",
         filtroAvisos: "",
+        filtroAvisosImportance: "Sin filtro",
+        filtroAvisosPorNumero: true, //intercalamos entre filtrar por número y filtrar por importancia
         filtroFechas: {
           inicio: null,
           fin: null,
@@ -76,6 +77,8 @@ export default {
       this.filtro.filtroTareas = value.filtroTareas;
       this.filtro.filtroHoras = value.filtroHoras;
       this.filtro.filtroAvisos = value.filtroAvisos;
+      this.filtro.filtroAvisosImportance = value.filtroAvisosImportance;
+      this.filtro.filtroAvisosPorNumero = value.filtroAvisosPorNumero;
 
     },
 
@@ -105,7 +108,7 @@ export default {
             }
               
           }},
-        { text: "FECHA DE CREACIÓN", value: "createdAt", sortable: true, align: "start", class: "primary--text secondary",
+        { text: "FECHA DE CREACIÓN", value: "createdAt", sortable: true, align: "start", class: "primary--text secondary", divider: true,
           filter: value => { 
             if (!this.filtro.filtroFechas.inicio && !this.filtro.filtroFechas.fin){
                 return true;
@@ -123,7 +126,7 @@ export default {
             }
           }
         },
-        { text: "TAREAS", value: "tasks", sortable: true, align: "start", class: "primary--text secondary",
+        { text: "TAREAS", value: "tasks", sortable: true, align: "center", class: "primary--text secondary", width:100, 
           filter: value => {
             
             if(this.filtro.switchTareas){
@@ -135,7 +138,7 @@ export default {
             }
         }
          },
-        { text: "BOLSAS DE HORAS", value: "hourBags", sortable: true, align: "start", class: "primary--text secondary", 
+        { text: "BOLSAS DE HORAS", value: "hourBags", sortable: true, align: "center", class: "primary--text secondary", width:200, divider: true,
          filter: value => {
             if(this.filtro.switchBolsas){
               if (this.filtro.filtroHoras == "") return true; 
@@ -146,8 +149,9 @@ export default {
             }
           }
          },
-        { text: "AVISOS", value: "warnings", sortable: true, align: "start", class: "primary--text secondary", 
+        { text: "AVISOS", value: "warnings", sortable: true, align: "center", class: "primary--text secondary", width:100, 
           filter: value => {
+
             if(this.filtro.switchAvisos){
               if (this.filtro.filtroAvisos == "") return true; 
               else return value < parseInt(this.filtro.filtroAvisos);
@@ -157,8 +161,18 @@ export default {
             }
           }
         },
-        { text: "ACCIONES", value: "actions", sortable: false, align: "start", class: "primary--text secondary" },
-        { text: "FIJADOS", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
+        { text: "!", value: "warningImportance", sortable: true, align: "center", class: "primary--text secondary",  width:10, divider: true, 
+          filter: value => {
+              
+            if(this.filtro.filtroAvisosImportance == "Sin filtro"){
+              return true;
+            }else{
+              return ( value ) == ( this.filtro.filtroAvisosImportance ) ? true : false;
+            }
+          }
+        },
+        { text: "ACCIONES", value: "actions", sortable: false, align: "center", class: "primary--text secondary", divider: true, },
+        { text: "FIJADOS", value: "pin", sortable: true, align: "center", class: "primary--text secondary",  width:10},
       ]
     },
   }

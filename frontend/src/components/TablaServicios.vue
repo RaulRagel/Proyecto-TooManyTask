@@ -1,5 +1,5 @@
 <template>
-  <div> <!-- :sort-by="['beneficiario']"  -->
+  <div>
     <v-snackbar
       transition="slide-y-transition"
       v-model="snackbar"
@@ -78,10 +78,11 @@
               </v-btn>
 
               <download-excel
+                  :header="json_header"
                   :data="json_data"
                   :fields="json_fields"
                   :before-generate="getDataToJson"
-                  name="Contratos.xls"
+                  name="Contratos de mantenimiento.xls"
                 >
                   <v-btn dark color="primary" class="mb-2 mr-4" title="Exportar en formato Excel.">
                     <v-icon left>mdi-file-excel</v-icon>
@@ -182,9 +183,26 @@
 
 
       <template v-slot:[`item.warnings`]="{ item }">
-        <v-chip :color="getColor(item.warnings)" text-color="black" outlined label @click="showWarnings(item.warningList)" title="Mostrar avisos">
+        <v-chip 
+          text-color="black" 
+          outlined 
+          label 
+          @click="showWarnings(item.warningList)" 
+          title="Mostrar avisos">
+
           {{ item.warnings }}
         </v-chip>
+      </template>
+
+      <template v-slot:[`item.warningImportance`]="{ item }">
+        <v-icon
+          v-if="item.warningImportance != 0"
+          :color="getColorByImportance(item.warningImportance)" 
+          @click="showWarnings(item.warningListFiltered)" 
+          :title="getTitleWarnings(item.warningImportance)">
+
+          mdi-alert-decagram
+        </v-icon>
       </template>
 
       <template v-slot:[`item.pin`]="{ item }">
@@ -205,7 +223,6 @@
 </template>
 
 <script>
-//import {json2excel, excel2json} from 'js2excel';
 import FechaModal from '@/components/FechaModal.vue';
 import moment from "moment";
 import axios from "axios";
@@ -288,6 +305,8 @@ export default {
     //---EXPORTAR A EXCEL
     json_data: [],
     json_fields: {},
+    json_header: "",
+
   }),
 
   computed: { 
@@ -491,7 +510,6 @@ export default {
 
           //guardamos
           await this.saveInBd();
-          console.log("test");
           await this.getFromBd();
         }
 
@@ -560,10 +578,44 @@ export default {
     },
     
     //---OTROS
-    getColor (warnings) { //color de los warnings de la tabla
-      if (warnings > 4) return 'red'
-      else if (warnings > 2) return 'orange'
-      else return 'green'
+    getColorByImportance (importance) { //color de los warnings de la tabla
+
+      switch(importance){
+        case 0: 
+          return 'grey';
+        case 1: 
+          return 'amber';
+        case 2: 
+          return 'orange';
+        case 3: 
+          return 'red';
+      }
+    },
+
+    getTitleWarnings(importance){
+      switch(importance){
+        case 0: 
+          return "No tienes avisos";
+        case 1: 
+          return "Mostrar avisos (importancia baja)";
+        case 2: 
+          return "Mostrar avisos (importancia media)";
+        case 3: 
+          return "Mostrar avisos (importancia alta)";
+      }
+    },
+
+    getColorByNumber (number) { //color de los warnings de la tabla
+
+      if(number > 4){
+        return 'red';
+      }else if(number > 2){
+        return 'orange';
+      }else if(number > 0){
+        return 'green';
+      }else{
+        return 'grey';
+      }
     },
     
     pinnedColor(pin){
@@ -573,19 +625,36 @@ export default {
 
     //---EXPORTAR A EXCEL
     async getDataToJson(){
-      let response = await axios.get(this.urlCrud);
+      let response = await axios.get(this.urlGet);
       let serviciosExcel = response.data;
 
-      this.json_data = serviciosExcel; //datos que vamos a exportar
+      if(serviciosExcel.length == 0){
 
-      this.json_fields = { //encabezados
-        'Nombre': 'name',
-        'Beneficiario': 'beneficiary',
-        'Fecha de creación': 'createdAt',
-        'Tareas': 'tasks',
-        'Bolsas de horas': 'hourBags',
-        'Avisos': 'warnings',
-      };
+        this.callSnackbarSubtitle("red","No tienes nada que descargar","Prueba a añadir un servicio");
+      }else{
+
+        serviciosExcel = serviciosExcel.sort((a,b)=>{
+          return a.id - b.id;
+        });
+
+        this.json_header = "SERVICIOS";
+
+        this.json_data = serviciosExcel; //datos que vamos a exportar
+
+        this.json_fields = { //encabezados
+          'Nombre': 'name',
+          'Beneficiario': 'beneficiary',
+          'Fecha de creación': 'createdAt',
+          'Tareas': 'tasks',
+          'Total horas invertidas': 'totalInvested',
+          'Bolsas de horas': 'hourBags',
+          'Horas totales contrato':'totalHours',
+          'Horas disponibles':'availableHours',
+          'Avisos': 'warnings',
+        };
+
+        this.callSnackbar("orange","Descargando datos...");
+      }
     },
   },
 };

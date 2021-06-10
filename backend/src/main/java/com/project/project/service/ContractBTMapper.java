@@ -97,7 +97,7 @@ public class ContractBTMapper {
 
         //-----------LISTA DE AVISOS
 
-        contractBTDTO.setWarningList(comprobarWarnings(contractBTDTO));
+        contractBTDTO.setWarningList(getWarnings(contractBTDTO));
 
         if(contractBTDTO.getWarningList().isEmpty()){
             contractBTDTO.setWarnings(0);
@@ -112,63 +112,119 @@ public class ContractBTMapper {
         return contractBTDTO;
     }
 
-    private static List<String> comprobarWarnings(ContractBTDTO contractBTDTO) {
+    private static List<String> getWarnings(ContractBTDTO contractBTDTO) {
 
         List<String> warningList = new ArrayList<>();
+        List<Integer> warningsID = new ArrayList<>();
 
-        if(contractBTDTO.getHourBagsList().isEmpty()) warningList.add("No hay bolsas de horas en el servicio");
+        contractBTDTO.setWarningImportance(0); //empezamos en 0, si no pasamos por ningún aviso se mantendrá en 0
 
-        if(contractBTDTO.getAvailableHours() < 5){
+        //IMPORTANCIA BAJA
 
-            if(contractBTDTO.getAvailableHours() == 0) {
-                warningList.add("No quedan horas disponibles");
-            }else {
-                warningList.add("Se están acabando las horas disponibles ("+contractBTDTO.getAvailableHours()+"h)");
-            }
+        if(contractBTDTO.getHourBagsList().isEmpty()){
+            warningList.add("No hay bolsas de horas en el servicio");
+            contractBTDTO.setWarningImportance(1);
+            warningsID.add(1);
         }
-
-        if(contractBTDTO.getTaskList().isEmpty()) warningList.add("No hay tareas en el servicio");
-
-        if(!contractBTDTO.getTaskList().isEmpty()){
-            int tareasImportantes = 0;
+        if(contractBTDTO.getTaskList().isEmpty()){
+            warningList.add("No hay tareas en el servicio");
+            contractBTDTO.setWarningImportance(1);
+            warningsID.add(2);
+        }else{
             int warningsPendiente = 0;
+            int tareasImportantes = 0;
 
             for (int i = 0; i < contractBTDTO.getTaskList().size(); i++) {
-                if(contractBTDTO.getTaskList().get(i).getPriority().equals("1")){ //prioridad alta
-                    tareasImportantes++;
-                }
 
                 if(contractBTDTO.getTaskList().get(i).getState().equals("1") && contractBTDTO.getTaskList().get(i).getInvestedTime() > 0){ //estado pendiente y tiempo > 0
 
                     warningsPendiente++;
                 }
+                if(contractBTDTO.getTaskList().get(i).getPriority().equals("1")){ //prioridad alta
+
+                    tareasImportantes++;
+                }
+            }
+            if(warningsPendiente > 0){
+                warningList.add("("+warningsPendiente+") Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'");
+                contractBTDTO.setWarningImportance(1);
+                warningsID.add(3);
             }
 
-            if(warningsPendiente > 0)
-            warningList.add("("+warningsPendiente+") Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'");
+        //IMPORTANCIA MEDIA
 
-            if(tareasImportantes > 5) warningList.add("Se están acumulando las tareas importantes ("+tareasImportantes+")");
+            if(tareasImportantes > 5) {
+                warningList.add("Se están acumulando las tareas importantes ("+tareasImportantes+")");
+                contractBTDTO.setWarningImportance(2);
+                warningsID.add(4);
+            }
         }
 
-        if(contractBTDTO.getTotalInvested()>contractBTDTO.getTotalHours()) warningList.add("Has invertido "+(contractBTDTO.getTotalInvested()-contractBTDTO.getTotalHours())+" horas más de las que tienes");
+        if(contractBTDTO.getAvailableHours() < 5){
+
+            if(contractBTDTO.getAvailableHours() != 0) {
+
+                warningList.add("Se están acabando las horas disponibles ("+contractBTDTO.getAvailableHours()+"h)");
+                contractBTDTO.setWarningImportance(2);
+                warningsID.add(5);
+
+        //IMPORTANCIA ALTA
+
+            }else {
+                warningList.add("No quedan horas disponibles");
+                contractBTDTO.setWarningImportance(3);
+                warningsID.add(6);
+            }
+        }
+
+        if(contractBTDTO.getTotalInvested()>contractBTDTO.getTotalHours()) {
+            warningList.add("Has invertido "+(contractBTDTO.getTotalInvested()-contractBTDTO.getTotalHours())+" horas más de las que tienes");
+            contractBTDTO.setWarningImportance(3);
+            warningsID.add(7);
+        }
+
+        //DESPUES DE RECORRER LOS AVISOS, RELLENAMOS LA LISTA FILTRADA CON SÓLO LOS AVISOS DE SU TIPO
+        List<String> warningListFiltered = new ArrayList<>();
+
+        switch (contractBTDTO.getWarningImportance()){
+            case 0:
+                warningListFiltered.add("0");
+                break;
+            case 1:
+                if(warningsID.contains(1))  warningListFiltered.add("No hay bolsas de horas en el servicio");
+                if(warningsID.contains(2)) warningListFiltered.add("No hay bolsas de horas en el servicio");
+                if(warningsID.contains(3)) warningListFiltered.add("Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'");
+                break;
+            case 2:
+                if(warningsID.contains(4)) warningListFiltered.add("Se están acumulando las tareas importantes");
+                if(warningsID.contains(5)) warningListFiltered.add("Se están acabando las horas disponibles");
+                break;
+            case 3:
+                if(warningsID.contains(6)) warningListFiltered.add("No quedan horas disponibles");
+                if(warningsID.contains(7)) warningListFiltered.add("Has invertido más horas de las que tienes");
+                break;
+        }
+
+        contractBTDTO.setWarningListFiltered(warningListFiltered);
 
         return warningList;
     }
 
-    /*
-        1  No hay bolsas de horas en el servicio
+    /* Primero las menos importantes. Si el método llega a las últimas, quiere decir que habrá avisos importantes
+        Valor de warningImportance:
 
-        2  Se están acabando las horas disponibles
+        1:
+        (x)Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'
+        No hay bolsas de horas en el servicio
+        No hay tareas en el servicio
 
-        3 No quedan horas disponibles
+        2:
+        Se están acumulando las tareas importantes (x)
+        Se están acabando las horas disponibles (xh)
 
-        4 No hay tareas en el servicio
-
-        5 Se están acumulando las tareas importantes (x)
-
-        6 (x)Has invertido tiempo a algunas tareas que mantienen el estado 'Pendiente'
-
-        7 Has invertido (x) horas más de las que tienes
+        3:
+        No quedan horas disponibles
+        Has invertido (x) horas más de las que tienes
      */
 
     public static String upperCaseFirst(String val) {

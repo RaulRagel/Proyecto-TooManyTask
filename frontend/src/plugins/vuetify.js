@@ -22,20 +22,6 @@ export default new Vuetify({
         error: "#D50000",
         
       },
-      dark: {
-        primary: "#271a10",  
-        primary_variant: "#33271f",
-        secondary: "#3e342d", 
-        secondary_variant: "#4C4037",
-        on_button: "#000000",
-        background: "#685A4B",
-        blanco: "#FFFFFF",
-        negro: "#000000",
-
-        warning: "#FFFF00", 
-        accent: "#8c9eff", 
-        error: "#D50000",
-      },
     },
   },
 });

@@ -51,10 +51,6 @@
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" title="Añadir una nueva tarea.">
                 Nuevo
               </v-btn>
-
-              <v-btn color="primary" dark class="mb-2 mr-4" title="Exportar en formato Excel.">
-                Exportar
-              </v-btn>
             </template>
             <v-card color="secondary" class="blanco--text">
               <v-card-title>

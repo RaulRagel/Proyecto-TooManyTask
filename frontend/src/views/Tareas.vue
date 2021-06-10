@@ -1,25 +1,23 @@
 <template>
-  <v-sheet color="background" class="overflow-hidden" >
-    <v-row>
-      <!--FILTROS-->
-      <v-col cols="2">
+  <v-row color="background">
+    <!--FILTROS-->
+    <v-col cols="2">
 
-        <v-navigation-drawer absolute permanent color="secondary">
-          
-          <filtros-tareas @misFiltros="rellenaFiltros" ref="filtro"/>
-
-        </v-navigation-drawer>
-    
-      </v-col>
-
-      <!--TABLA-->
-      <v-col cols="9" class="pt-10">
+      <v-navigation-drawer absolute permanent color="secondary">
         
-        <tabla-tareas v-bind:headers="headers"/>
-      </v-col>
-    </v-row>
+        <filtros-tareas @misFiltros="rellenaFiltros" ref="filtro"/>
 
-  </v-sheet>
+      </v-navigation-drawer>
+  
+    </v-col>
+
+    <!--TABLA-->
+    <v-col cols="9" class="pt-10">
+      
+      <tabla-tareas v-bind:headers="headers"/>
+
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -61,8 +59,6 @@ export default {
   methods:{
     rellenaFiltros(value){
 
-      //console.log(value);
-
       this.filtro.switchHoras = value.switchHoras,
       this.filtro.filtroServicio = value.filtroServicio;
       this.filtro.filtroTitulo = value.filtroTitulo;
@@ -83,10 +79,10 @@ export default {
            }else
             return ( f + '' ).toLowerCase().includes( this.filtro.filtroServicio.toLowerCase() ) 
           }},
-        { text: "TITULO", value: "title", class: "primary--text secondary",
+        { text: "TITULO", value: "title", align: "start", class: "primary--text secondary",
          filter: f => { return ( f + '' ).toLowerCase().includes( this.filtro.filtroTitulo.toLowerCase() ) }},
-        { text: "DESCRIPCIÓN", value: "description", class: "primary--text secondary",},
-        { text: "FECHA DE CREACIÓN", value: "createdAt", class: "primary--text secondary",
+        { text: "DESCRIPCIÓN", value: "description", class: "primary--text secondary", width:150, divider: true, },
+        { text: "FECHA DE CREACIÓN", value: "createdAt", align: "center", class: "primary--text secondary", width:150, 
          
          filter: value => { 
             if (!this.filtro.filtroFechas.inicio && !this.filtro.filtroFechas.fin){
@@ -105,8 +101,8 @@ export default {
             }
           }
          },
-        { text: "FECHA DE FIN", value: "finishedAt", class: "primary--text secondary",},
-        { text: "TIEMPO INVERTIDO", value: "investedTime", class: "primary--text secondary",
+        { text: "FECHA DE FIN", value: "finishedAt", align: "center", class: "primary--text secondary", width:110, divider: true, },
+        { text: "TIEMPO INVERTIDO", value: "investedTime", class: "primary--text secondary", width:10, divider: true, 
          filter: value => {
 
            if(this.filtro.switchHoras){
@@ -125,16 +121,16 @@ export default {
              return ( f + '' ).toLowerCase().includes( this.filtro.filtroPrioridad.toLowerCase() ) 
            }
          }},
-        { text: "ESTADO", value: "state", class: "primary--text secondary",
+        { text: "ESTADO", value: "state", class: "primary--text secondary", divider: true, 
          filter: f => { 
-            if(this.filtro.filtroEstado == "Sin filtro"){
+           if(this.filtro.filtroEstado == "Sin filtro"){
              return true;
            }else{
              return ( f + '' ).toLowerCase().includes( this.filtro.filtroEstado.toLowerCase() ) 
            }
          }},
-        { text: "ACCIONES", value: "actions", sortable: false, class: "primary--text secondary" },
-        { text: "FIJADOS", value: "pin", sortable: false, align: "start", class: "primary--text secondary"},
+        { text: "ACCIONES", value: "actions", sortable: false, class: "primary--text secondary", width:100, divider: true, },
+        { text: "FIJADOS", value: "pin", sortable: true, align: "start", class: "primary--text secondary", width:10},
       ]
     },
   }

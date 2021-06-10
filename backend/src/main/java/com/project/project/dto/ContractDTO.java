@@ -18,14 +18,13 @@ public class ContractDTO {
 
     private int hourBags;
 
-    private int warnings;
 
     private boolean pin;
 
     public ContractDTO() {
     }
 
-    public ContractDTO(Long id, String name, String beneficiary, LocalDate createdAt, int tasks, Long totalHours, int hourBags, int warnings, boolean pin) {
+    public ContractDTO(Long id, String name, String beneficiary, LocalDate createdAt, int tasks, Long totalHours, int hourBags, boolean pin) {
         this.id = id;
         this.name = name;
         this.beneficiary = beneficiary;
@@ -33,7 +32,6 @@ public class ContractDTO {
         this.tasks = tasks;
         this.totalHours = totalHours;
         this.hourBags = hourBags;
-        this.warnings = warnings;
         this.pin = pin;
     }
 
@@ -99,13 +97,5 @@ public class ContractDTO {
 
     public void setHourBags(int hourBags) {
         this.hourBags = hourBags;
-    }
-
-    public int getWarnings() {
-        return warnings;
-    }
-
-    public void setWarnings(int warnings) {
-        this.warnings = warnings;
     }
 }

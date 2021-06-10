@@ -1,4 +1,3 @@
-/* eslint-disable */
 <template>
   <div>
       <v-list-item >
@@ -114,6 +113,26 @@
             </v-list-item-title>
 
             <v-text-field class="mr-4 mt-n3" v-model.number="filtro.filtroAvisos" :label="masDeMenosDe(filtro.switchAvisos)" @change="enviarFiltro"></v-text-field>
+
+          </v-list-item-content>
+
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-alert-decagram-outline</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>Importancia <span>{{ "("+filtro.filtroAvisosImportance+")" || 'null' }}</span></v-list-item-title>
+
+            <v-radio-group v-model="filtro.filtroAvisosImportance" class="ml-2" @change="enviarFiltro">
+              <v-radio label="Sin filtro" value="Sin filtro" color="black"></v-radio>
+              <v-radio label="Sin avisos" :value="0" color="grey"></v-radio>
+              <v-radio label="Baja" :value="1" color="green"></v-radio>
+              <v-radio label="Media" :value="2" color="orange"></v-radio>
+              <v-radio label="Alta" :value="3" color="red"></v-radio>
+            </v-radio-group>
           </v-list-item-content>
         </v-list-item>
           
@@ -139,6 +158,7 @@ export default {
         filtroTareas: "",
         filtroHoras: "",
         filtroAvisos: "",
+        filtroAvisosImportance: "Sin filtro",
         filtroFechas: {
           inicio: null,
           fin: null,
@@ -153,6 +173,7 @@ export default {
         filtroTareas: "",
         filtroHoras: "",
         filtroAvisos: "",
+        filtroAvisosImportance: "Sin filtro",
         filtroFechas: {
           inicio: null,
           fin: null,

@@ -25,7 +25,9 @@ public class ContractBTDTO {
     private int hourBags;
 
     private List<String> warningList;
+    private List<String> warningListFiltered;
     private int warnings;
+    private int warningImportance; //1 menos importante, 3 más importante
 
     private boolean pin;
 
@@ -50,85 +52,6 @@ public class ContractBTDTO {
         this.pin = pin;
     }
 
-    public boolean isPin() {
-        return pin;
-    }
-
-    public void setPin(boolean pin) {
-        this.pin = pin;
-    }
-
-    public int getWarnings() {
-        return warnings;
-    }
-
-    public void setWarnings(int warnings) {
-        this.warnings = warnings;
-    }
-
-    public int getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(int tasks) {
-        this.tasks = tasks;
-    }
-
-    public int getHourBags() {
-        return hourBags;
-    }
-
-    public void setHourBags(int hourBags) {
-        this.hourBags = hourBags;
-    }
-
-    public List<String> getWarningList() {
-        return warningList;
-    }
-
-    public void setWarningList(List<String> warningList) {
-        this.warningList = warningList;
-    }
-
-    public Long getTotalInvestedAux() {
-        return totalInvestedAux;
-    }
-
-    public void setTotalInvestedAux(Long totalInvestedAux) {
-        this.totalInvestedAux = totalInvestedAux;
-    }
-
-    public Long getTotalInvested() {
-        return totalInvested;
-    }
-
-    public void setTotalInvested(Long totalInvested) {
-        this.totalInvested = totalInvested;
-    }
-
-    public Long getAvailableHours() {
-        return availableHours;
-    }
-
-    public void setAvailableHours(Long availableHours) {
-        this.availableHours = availableHours;
-    }
-
-    public Long getTotalHours() {
-        return totalHours;
-    }
-
-    public void setTotalHours(Long totalHours) {
-        this.totalHours = totalHours;
-    }
-
-    public List<TaskDTO> getTaskList() {
-        return taskList;
-    }
-
-    public void setTaskList(List<TaskDTO> taskList) {
-        this.taskList = taskList;
-    }
 
     public Long getId() {
         return id;
@@ -162,6 +85,54 @@ public class ContractBTDTO {
         this.createdAt = createdAt;
     }
 
+    public List<TaskDTO> getTaskList() {
+        return taskList;
+    }
+
+    public void setTaskList(List<TaskDTO> taskList) {
+        this.taskList = taskList;
+    }
+
+    public int getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(int tasks) {
+        this.tasks = tasks;
+    }
+
+    public Long getTotalHours() {
+        return totalHours;
+    }
+
+    public void setTotalHours(Long totalHours) {
+        this.totalHours = totalHours;
+    }
+
+    public Long getTotalInvested() {
+        return totalInvested;
+    }
+
+    public void setTotalInvested(Long totalInvested) {
+        this.totalInvested = totalInvested;
+    }
+
+    public Long getTotalInvestedAux() {
+        return totalInvestedAux;
+    }
+
+    public void setTotalInvestedAux(Long totalInvestedAux) {
+        this.totalInvestedAux = totalInvestedAux;
+    }
+
+    public Long getAvailableHours() {
+        return availableHours;
+    }
+
+    public void setAvailableHours(Long availableHours) {
+        this.availableHours = availableHours;
+    }
+
     public List<HoursBagDTO> getHourBagsList() {
         return hourBagsList;
     }
@@ -170,5 +141,51 @@ public class ContractBTDTO {
         this.hourBagsList = hourBagsList;
     }
 
+    public int getHourBags() {
+        return hourBags;
+    }
 
+    public void setHourBags(int hourBags) {
+        this.hourBags = hourBags;
+    }
+
+    public List<String> getWarningList() {
+        return warningList;
+    }
+
+    public void setWarningList(List<String> warningList) {
+        this.warningList = warningList;
+    }
+
+    public int getWarnings() {
+        return warnings;
+    }
+
+    public List<String> getWarningListFiltered() {
+        return warningListFiltered;
+    }
+
+    public void setWarningListFiltered(List<String> warningListFiltered) {
+        this.warningListFiltered = warningListFiltered;
+    }
+
+    public void setWarnings(int warnings) {
+        this.warnings = warnings;
+    }
+
+    public int getWarningImportance() {
+        return warningImportance;
+    }
+
+    public void setWarningImportance(int warningImportance) {
+        this.warningImportance = warningImportance;
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
 }

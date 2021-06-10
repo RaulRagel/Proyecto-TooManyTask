@@ -19,7 +19,7 @@ public class ContractMapper {
         else contractDTO.setHourBags(0);
 
         double sum = 0;
-        
+
         if(contract.getTaskList() != null){ //si no estaba vacía
 
             contractDTO.setTasks(contract.getTaskList().size()); //marcamos su numero de tareas
@@ -34,8 +34,6 @@ public class ContractMapper {
             contractDTO.setTasks(0);
             contractDTO.setTotalHours(Long.parseLong("0"));
         }
-
-        contractDTO.setWarnings(0);
 
         contractDTO.setPin(contract.isPin());
 

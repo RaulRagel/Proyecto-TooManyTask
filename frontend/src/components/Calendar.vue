@@ -1,7 +1,7 @@
-/* eslint-disable */
+
 <template>
-    <div class="calendars">
-        <!--calendario incio -->
+    <div>
+        <!--Calendario incio -->
         <v-menu
           ref="startMenu"
           :close-on-content-click="false"
@@ -19,7 +19,7 @@
             ></v-text-field>
           </template>
 
-          <v-date-picker v-model="fechas.inicio" no-title scrollable locale="es-ES" @change="okIni">
+          <v-date-picker v-model="fechas.inicio" no-title scrollable locale="es-ES" @change="confirmInit">
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="$refs.startMenu.isActive = false" >
               Cancel
@@ -45,7 +45,7 @@
               
             ></v-text-field>
           </template>
-          <v-date-picker v-model="fechas.fin" no-title scrollable locale="es-ES" @change="okFin">
+          <v-date-picker v-model="fechas.fin" no-title scrollable locale="es-ES" @change="confirmEnd">
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="$refs.endMenu.isActive = false">
               Cancel
@@ -95,11 +95,11 @@ export default {
       this.$emit("misFechas",this.fechas);
     },
     
-    okIni(){
+    confirmInit(){
       this.$refs.startMenu.save(this.fechas.inicio);
       this.$emit("misFechas",this.fechas);
     },
-    okFin(){
+    confirmEnd(){
       this.$refs.endMenu.save(this.fechas.fin);
       this.$emit("misFechas",this.fechas);
     },

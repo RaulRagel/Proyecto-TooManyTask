@@ -24,8 +24,4 @@ export default {
 .theme--light.v-application {
   background-color: var(--v-background-base, #e5e0db) !important;
 }
-
-.theme--dark.v-application {
-  background-color: var(--v-background-base, #685a4b) !important;
-}
 </style>

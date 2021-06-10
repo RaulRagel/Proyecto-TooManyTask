@@ -1,30 +1,29 @@
 <template>
 <div>
-  <v-sheet color="background" class="overflow-hidden" >
-    <v-row>
-      <!--FILTROS-->
-      <v-col cols="2">
-
-        <v-navigation-drawer absolute permanent color="secondary">
-          
-          <filtros-bolsas @misFiltros="rellenaFiltros"/>
-
-        </v-navigation-drawer>
-
-      <!--FILTROS ACTIVOS-->
-   
+  <v-row color="background">
     
-      </v-col>
+    <!--FILTROS-->
+    <v-col cols="2">
 
-      <!--TABLA-->
-      <v-col cols="9" class="pt-10">
+      <v-navigation-drawer absolute permanent color="secondary">
         
-        <tabla-bolsas v-bind:headers="headers"/>
-      </v-col>
-    </v-row>
+        <filtros-bolsas @misFiltros="rellenaFiltros"/>
 
-  </v-sheet>
+      </v-navigation-drawer>
+
+    <!--FILTROS ACTIVOS-->
   
+  
+    </v-col>
+
+    <!--TABLA-->
+    <v-col cols="9" class="pt-10">
+      
+      <tabla-bolsas v-bind:headers="headers"/>
+      
+    </v-col>
+
+  </v-row>
 </div>
 </template>
 <script>
@@ -123,7 +122,7 @@ export default {
 
           }
          },
-        { text: "HORAS RESTANTES", value: "remaining", sortable: true, align: "start", class: "primary--text secondary", 
+        { text: "HORAS RESTANTES", value: "remaining", sortable: true, align: "start", class: "primary--text secondary", divider: true, 
          filter: value => {
 
             if(this.filtro.switchRestantes){

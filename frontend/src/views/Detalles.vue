@@ -11,6 +11,8 @@
           <v-toolbar flat class="blanco--text" color="primary_variant" tile>
             <v-toolbar-title><h2>[{{ servicio.beneficiary }}] {{ servicio.name }}</h2></v-toolbar-title>
 
+            <v-spacer></v-spacer>
+
             <v-btn icon color="blanco" title="Ir a la tabla Servicios" @click="goToPath('/servicios')">
               <v-icon style="transform: scaleX(-1)">mdi-application-import</v-icon>
             </v-btn>
@@ -28,7 +30,7 @@
 
         <v-card class="pa-3" color="secondary_variant" tile>
             <v-row>
-              <v-col sm="2"> {{ servicio.beneficiary }}</v-col>
+              <v-col sm="2"> {{servicio.beneficiary}}</v-col>
               <v-col sm="5">{{servicio.name}}</v-col>
               <v-col sm="2">{{formatDate(servicio.createdAt)}}</v-col>
             </v-row>
@@ -56,13 +58,18 @@
             </v-row>
         </v-card>
       </v-col>
-      <v-col cols="3">
-        <v-toolbar flat color="secondary" class="mb-2">
-          <v-toolbar-title>
-            <h2>Avisos</h2>
-          </v-toolbar-title>
-        </v-toolbar>
 
+      <!--AVISOS-->
+      <v-col cols="3">
+        <v-card
+          class="pa-1"
+          elevation="5"
+          color="primary_variant"
+        >
+          <v-toolbar flat color="primary_variant">
+            <v-toolbar-title class="blanco--text"><h3>Avisos</h3></v-toolbar-title>
+          </v-toolbar>
+        </v-card>
 
         <v-card color="secondary_variant" class="pa-3" tile>
           <ul v-if="getLength(servicio.warningList) != 0">
@@ -76,6 +83,8 @@
         
       </v-col>
     </v-row>
+
+    <!--TABLA TAREAS-->
     <v-row>
       <v-col sm="7">
         <v-data-table
@@ -93,6 +102,7 @@
                 <v-spacer></v-spacer>
 
                 <download-excel
+                    :header="json_header"
                     :data="json_data"
                     :fields="json_fields"
                     :before-generate="makeTaskExcel"
@@ -112,6 +122,7 @@
 
               </v-toolbar> 
 
+              <!--DIÁLOGO DESCRIPCIÓN-->
               <v-dialog v-model="dialog" width="500">
 
                 <v-card color="secondary_variant">
@@ -176,6 +187,8 @@
 
         </v-data-table>
       </v-col>
+
+      <!--TABLA BOLSAS DE HORAS-->
       <v-col sm="5">
         <v-data-table
           :headers="headersBolsas"
@@ -209,35 +222,29 @@
     </v-row>
 
     <!--GRÁFICOS-->
-    <!-- TAREAS -->
     <v-row>
+      <!-- GRÁFICO TAREAS -->
       <v-col cols="7">
         <v-card elevation="5">
-          <v-container fluid>
-            <v-row class="child-flex">
-              <v-toolbar flat class="blanco--text" color="primary_variant" tile>
+          <v-toolbar flat class="blanco--text" color="primary_variant">
 
-                <v-toolbar-title><h3>Gráfico tareas</h3></v-toolbar-title>
-                
-                <v-spacer></v-spacer>
+            <v-toolbar-title><h3>Gráfico tareas</h3></v-toolbar-title>
+            
+            <v-spacer></v-spacer>
 
-                <v-toolbar-title><h4>Cambiar tipo de gráfico</h4></v-toolbar-title>
-                <v-toolbar-items class="mt-4">
-
-                  <v-switch
-                    v-model="sw"
-                    color="white"
-                    class="pa-3 custom-red"
-                    :title="switchTitle"
-                  >
-                  </v-switch>
-                </v-toolbar-items>
-              </v-toolbar>
-            </v-row>
-          </v-container>
+            <v-toolbar-title><h4>Cambiar tipo de gráfico</h4></v-toolbar-title>
+           
+            <v-switch
+              v-model="sw"
+              color="white"
+              class="pa-3 mt-4 white-aura"
+              :title="switchTitle"
+            >
+            </v-switch>
+          </v-toolbar>
         </v-card>
 
-        <v-card color="secondary_variant" class="pa-5" tile>
+        <v-card color="secondary_variant" class="pa-5">
         
           <grafico-tareas 
             :sw="sw" 
@@ -249,15 +256,15 @@
         </v-card>
       </v-col>
 
-      <!-- BOLSAS DE HORAS -->
+      <!-- GRÁFICO BOLSAS DE HORAS -->
       <v-col cols="5">
         <v-card elevation="5">
-          <v-toolbar flat class="blanco--text" color="primary_variant" tile>
+          <v-toolbar flat class="blanco--text" color="primary_variant">
             <v-toolbar-title><h3>Gráfico bolsas</h3></v-toolbar-title>
           </v-toolbar>
         </v-card>
 
-        <v-card color="secondary_variant" class="pa-5" tile>
+        <v-card color="secondary_variant" class="pa-5">
         
             <grafico-bolsas :datosGrafico="graficoBolsas">
 
@@ -283,8 +290,10 @@ export default {
     GraficoBolsas,
   },
   data: () => ({
+    //---DIÁLOGOS
     dialog: false,
-    url: "http://localhost:8080/contractBT",
+    
+    //---ITEMS
     servicio: {
       id: "",
       name: "",
@@ -295,6 +304,11 @@ export default {
       taskList: [],
       warningList: []
     },
+    fila: {},
+    headersTareas: [],
+    headersBolsas: [],
+
+    //---GRÁFICOS
     graficoTareasEstado: {
       values: {
         pendientes: 0,
@@ -317,15 +331,17 @@ export default {
       }
     },
     sw: false,
-    fila: {},
-    headersTareas: [],
-    headersBolsas: [],
-    tareas: [],
-    bolsas: [],
 
+    //---EXPORTAR A EXCEL
     json_fields: {},
     json_data: [],
+    json_header: "",
     excelName: "",
+
+    //---API
+    tareas: [],
+    bolsas: [],
+    url: "http://localhost:8080/contractBT",
   }),
   created() {
     this.initialize();
@@ -371,10 +387,10 @@ export default {
     setHeaders() {
       (this.headersTareas = [
         { text: "TITULO", value: "title", class: "primary--text secondary" },
+        { text: "DESCRIPCIÓN", value: "description", class: "primary--text secondary", width:150, divider: true,},
         { text: "FECHA DE CREACIÓN", value: "createdAt", class: "primary--text secondary",},
         { text: "FECHA DE FIN", value: "finishedAt", class: "primary--text secondary",},
-        { text: "DESCRIPCIÓN", value: "description", class: "primary--text secondary",},
-        { text: "TIEMPO INVERTIDO", value: "investedTime",class: "primary--text secondary",},
+        { text: "TIEMPO INVERTIDO", value: "investedTime",class: "primary--text secondary", divider: true,},
         { text: "PRIORIDAD", value: "priority",class: "primary--text secondary",},
         { text: "ESTADO", value: "state", class: "primary--text secondary" },
       ]),
@@ -458,13 +474,14 @@ export default {
     //---EXPORTAR A EXCEL
     async makeTaskExcel(){
 
+      this.json_header = "["+this.servicio.beneficiary+"] "+this.servicio.name;
+
       this.json_data = this.servicio.taskList;
 
       this.excelName = this.servicio.beneficiary+"-"+this.servicio.name;
 
       this.json_fields = { //encabezados
 
-        'Servicio':'contractBN',
         'Titulo': 'title',
         'Descripción': 'description',
         'Fecha de creación': 'createdAt',
@@ -502,7 +519,7 @@ export default {
 </script>
 
 <style>
-  .custom-red .v-input--selection-controls__input {
+  .white-aura .v-input--selection-controls__input {
     color: white;
   }
   
