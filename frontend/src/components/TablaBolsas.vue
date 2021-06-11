@@ -1,13 +1,16 @@
 <template>
   <div>
     <v-snackbar
-        v-model="snackbar"
-        :timeout="timeout"
-        :color="snackbarColor"
-        top
-      > 
-        {{snackbarTitle}}
-      </v-snackbar>
+      transition="slide-y-transition"
+      v-model="snackbar"
+      :timeout="timeout"
+      :color="snackbarColor"
+      top
+    > 
+      <h2>{{snackbarTitle}}</h2>
+      <h3>{{snackbarSubtitle}}</h3>
+    </v-snackbar>
+
     <v-data-table
       :headers="headers"
       :items="bolsas"
@@ -47,12 +50,14 @@
                 Nuevo
               </v-btn>
             </template>
-            <v-card color="secondary" class="blanco--text">
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
 
-              <!-- ESTO ES EL MODAL -->
+            <!-- MODAL -->
+            <v-toolbar flat class="blanco--text" color="primary_variant">
+              <v-toolbar-title><h3>{{ formTitle }}</h3></v-toolbar-title>
+            </v-toolbar>
+
+            <v-card color="secondary" class="blanco--text">
+
               <v-card-text>
                 <v-container>
                 <v-form v-model="valid" ref="form3" >
@@ -113,17 +118,20 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="headline"
-                >¿Estás seguro de que quieres borrarlo?</v-card-title
-              >
+
+          <!-- DIÁLOGO DE BORRADO -->
+          <v-dialog v-model="dialogDelete" max-width="600px">
+            <v-toolbar flat class="blanco--text" color="primary_variant">
+              <v-toolbar-title><h3>¿Estás seguro de que quieres borrar esta bolsa?</h3></v-toolbar-title>
+            </v-toolbar>
+            <v-card class="pa-2" color="secondary_variant">
+              <p>No podrás recuperarla. Esta acción puede modificar las horas restantes del resto de bolsas.</p>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="black" text @click="closeDelete"
+                <v-btn color="primary_variant" dark @click="closeDelete"
                   >Cancelar</v-btn
                 >
-                <v-btn color="black" text @click="deleteItemConfirm"
+                <v-btn color="primary_variant" dark @click="deleteItemConfirm"
                   >OK</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -219,9 +227,10 @@ export default {
 
     //---SNACKBAR
     snackbarTitle: "",
+    snackbarSubtitle: "",
     snackbarColor: "",
     snackbar: false,
-    timeout: 1500,
+    timeout: 2000,
 
     //---API
     bolsas: [],
@@ -270,6 +279,11 @@ export default {
         this.editedItem.contractId = localStorage.serviceID;
         this.dialog = true;
       }
+
+      if(localStorage.verPorFiltro){
+        this.callSnackbarSubtitle('grey',"Se ha agregado un filtro","Puedes volver a Detalles haciendo doble click en una fila o en el ojo");
+        localStorage.verPorFiltro = "";
+      }
       
     },
 
@@ -277,6 +291,12 @@ export default {
     callSnackbar(color,text){
       this.snackbarColor = color;
       this.snackbarTitle = text;
+      this.snackbar = true;
+    },
+    callSnackbarSubtitle(color,text,subtext){
+      this.snackbarColor = color;
+      this.snackbarTitle = text;
+      this.snackbarSubtitle = subtext;
       this.snackbar = true;
     },
 
@@ -398,7 +418,7 @@ export default {
       if (error.response) {
 
         // Se hizo la petición y el servidor respondió con un código de error
-        this.callSnackbarSubtitle("red","Error en el servidor");
+        this.callSnackbar("red","Error en el servidor");
         console.log(error.response.data);
         console.log(error.response.status);
         console.log(error.response.headers);

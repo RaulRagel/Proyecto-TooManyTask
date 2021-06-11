@@ -92,12 +92,13 @@
 
             </template>
 
-            <v-card color="secondary" class="blanco--text">
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
-              
               <!-- MODAL -->
+            <v-toolbar flat class="blanco--text" color="primary_variant">
+              <v-toolbar-title><h3>{{ formTitle }}</h3></v-toolbar-title>
+            </v-toolbar>
+
+            <v-card color="secondary" class="blanco--text">
+              
               <v-card-text class="blanco--text">
                 <v-container>
                   <v-form v-model="valid" ref="form1" >
@@ -140,18 +141,20 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card class="pa-2">
-              <v-card-title class="headline">
-                ¿Estás seguro de que quieres borrarlo?
-              </v-card-title>
+
+          <!-- DIÁLOGO DE BORRADO -->
+          <v-dialog v-model="dialogDelete" max-width="600px">
+            <v-toolbar flat class="blanco--text" color="primary_variant">
+              <v-toolbar-title><h3>¿Estás seguro de que quieres borrar el servicio?</h3></v-toolbar-title>
+            </v-toolbar>
+            <v-card class="pa-2" color="secondary_variant">
               <p>Las tareas y bolsas de horas asignadas se borrarán también.</p>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="black" text @click="closeDelete"
+                <v-btn color="primary_variant" dark @click="closeDelete"
                   >Cancelar</v-btn
                 >
-                <v-btn color="black" text @click="deleteItemConfirm"
+                <v-btn color="primary_variant" dark @click="deleteItemConfirm"
                   >OK</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -188,7 +191,7 @@
           outlined 
           label 
           @click="showWarnings(item.warningList)" 
-          title="Mostrar avisos">
+          title="Mostrar todos">
 
           {{ item.warnings }}
         </v-chip>

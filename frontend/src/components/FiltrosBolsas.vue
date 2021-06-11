@@ -160,7 +160,7 @@ export default {
     cargarFiltroLocalStorage(){
       if(localStorage.verPorFiltro){ //si ya tenemos un filtro, lo enviamos
         this.filtro.filtroServicio = localStorage.verPorFiltro;
-        localStorage.verPorFiltro = "";
+        //localStorage.verPorFiltro = ""; //lo vaciamos al cargar el snackbar en la tabla 
 
         this.enviarFiltro();
       }
